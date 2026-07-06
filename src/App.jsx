@@ -10,18 +10,18 @@ import ProfilePage from './pages/ProfilePage'
 import { useSavedPlaces } from './hooks/useSavedPlaces'
 
 export default function App() {
-  const { isSaved, toggleSave } = useSavedPlaces()
+  const placesState = useSavedPlaces()
 
   return (
     <ToastProvider>
-      <div className="max-w-lg mx-auto relative bg-warm-white min-h-screen shadow-2xl">
+      <div className="max-w-lg mx-auto relative bg-ink text-cream min-h-screen ring-1 ring-white/5 shadow-[0_0_90px_rgba(0,0,0,0.85)]">
         <AnimatePresence mode="wait">
           <Routes>
-            <Route path="/" element={<HomePage isSaved={isSaved} toggleSave={toggleSave} />} />
-            <Route path="/explore" element={<ExplorePage isSaved={isSaved} toggleSave={toggleSave} />} />
-            <Route path="/collections" element={<CollectionsPage isSaved={isSaved} toggleSave={toggleSave} />} />
+            <Route path="/" element={<HomePage {...placesState} />} />
+            <Route path="/explore" element={<ExplorePage {...placesState} />} />
+            <Route path="/collections" element={<CollectionsPage {...placesState} />} />
             <Route path="/friends" element={<FriendsPage />} />
-            <Route path="/profile" element={<ProfilePage isSaved={isSaved} />} />
+            <Route path="/profile" element={<ProfilePage {...placesState} />} />
           </Routes>
         </AnimatePresence>
         <BottomNav />

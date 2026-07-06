@@ -3,15 +3,18 @@ const img = (id, w = 800, h = 600) =>
   `https://images.unsplash.com/photo-${id}?w=${w}&h=${h}&fit=crop&auto=format&q=80`
 
 export const categories = [
-  { id: 'all', label: 'All', emoji: '✨' },
-  { id: 'restaurant', label: 'Restaurants', emoji: '🍽️' },
-  { id: 'cafe', label: 'Cafés', emoji: '☕' },
-  { id: 'bar', label: 'Bars', emoji: '🍸' },
-  { id: 'park', label: 'Parks', emoji: '🌿' },
-  { id: 'museum', label: 'Museums', emoji: '🎨' },
-  { id: 'bakery', label: 'Bakeries', emoji: '🥐' },
-  { id: 'viewpoint', label: 'Viewpoints', emoji: '🏔️' },
+  { id: 'all', label: 'All', icon: 'sparkles', color: '#EFB35C' },
+  { id: 'restaurant', label: 'Restaurants', icon: 'utensils', color: '#FB7185' },
+  { id: 'cafe', label: 'Cafés', icon: 'coffee', color: '#F59E0B' },
+  { id: 'bar', label: 'Bars', icon: 'martini', color: '#A78BFA' },
+  { id: 'park', label: 'Parks', icon: 'tree', color: '#6EE7A0' },
+  { id: 'museum', label: 'Museums', icon: 'palette', color: '#7DD3FC' },
+  { id: 'bakery', label: 'Bakeries', icon: 'croissant', color: '#FDBA74' },
+  { id: 'viewpoint', label: 'Viewpoints', icon: 'mountain', color: '#5EEAD4' },
 ]
+
+// quick lookup: categoryMeta.restaurant → { icon, color, label }
+export const categoryMeta = Object.fromEntries(categories.map(c => [c.id, c]))
 
 export const places = [
   {
@@ -247,7 +250,7 @@ export const collections = [
     id: 1,
     name: 'Date Night Spots',
     emoji: '💕',
-    color: '#FF6B6B',
+    color: '#FB7185',
     placeIds: [1, 3, 7],
     isShared: true,
     sharedWith: [2],
@@ -256,7 +259,7 @@ export const collections = [
     id: 2,
     name: 'Coffee Crawl',
     emoji: '☕',
-    color: '#FFB830',
+    color: '#F59E0B',
     placeIds: [2, 6, 10],
     isShared: false,
     sharedWith: [],
@@ -265,7 +268,7 @@ export const collections = [
     id: 3,
     name: 'Weekend Adventures',
     emoji: '🌄',
-    color: '#6BCB77',
+    color: '#6EE7A0',
     placeIds: [4, 5, 8],
     isShared: true,
     sharedWith: [3, 4],
@@ -274,7 +277,7 @@ export const collections = [
     id: 4,
     name: 'Foodie Bucket List',
     emoji: '🔥',
-    color: '#4D96FF',
+    color: '#7DD3FC',
     placeIds: [1, 6, 9],
     isShared: true,
     sharedWith: [2, 5],

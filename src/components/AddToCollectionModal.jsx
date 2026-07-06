@@ -17,7 +17,7 @@ export default function AddToCollectionModal({ place, isOpen, onClose }) {
 
   function handleCreate() {
     if (!newName.trim()) return
-    showToast({ message: `Collection "${newName}" created!` })
+    showToast({ message: `Collection "${newName}" created ✦` })
     setNewName('')
     setCreating(false)
     onClose()
@@ -32,30 +32,30 @@ export default function AddToCollectionModal({ place, isOpen, onClose }) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-navy/50 backdrop-blur-sm z-[80]"
+            className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[80]"
           />
           <motion.div
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-            className="fixed bottom-0 left-0 right-0 z-[90] bg-warm-white rounded-t-3xl max-h-[70vh] overflow-y-auto"
+            className="fixed bottom-0 left-0 right-0 z-[90] max-w-lg mx-auto bg-ink-2 rounded-t-[28px] max-h-[70vh] overflow-y-auto hairline-t shadow-pop"
           >
             <div className="flex justify-center py-3">
-              <div className="w-10 h-1 rounded-full bg-sand" />
+              <div className="w-10 h-1 rounded-full bg-white/20" />
             </div>
             <div className="px-5 pb-10">
               <div className="flex items-center justify-between mb-5">
-                <h2 className="text-xl font-bold text-navy">Save to Collection</h2>
-                <button onClick={onClose} className="w-8 h-8 rounded-full bg-sand/40 flex items-center justify-center">
-                  <X size={16} className="text-slate" />
+                <h2 className="font-display text-2xl text-cream">Save to collection</h2>
+                <button onClick={onClose} className="w-8 h-8 rounded-full bg-ink-3 hairline flex items-center justify-center">
+                  <X size={15} className="text-muted" />
                 </button>
               </div>
 
               {place && (
-                <div className="flex items-center gap-3 mb-5 p-3 bg-cream rounded-xl">
-                  <img src={place.image} alt={place.name} className="w-12 h-12 rounded-lg object-cover" />
-                  <p className="font-semibold text-navy text-sm">{place.name}</p>
+                <div className="flex items-center gap-3 mb-5 p-3 bg-ink-3/70 hairline rounded-2xl">
+                  <img src={place.image} alt={place.name} className="w-12 h-12 rounded-xl object-cover" />
+                  <p className="font-semibold text-cream text-sm">{place.name}</p>
                 </div>
               )}
 
@@ -65,17 +65,22 @@ export default function AddToCollectionModal({ place, isOpen, onClose }) {
                     key={col.id}
                     whileTap={{ scale: 0.97 }}
                     onClick={() => handleAdd(col)}
-                    className="w-full flex items-center gap-3 p-3.5 bg-white rounded-2xl border border-sand/50 hover:border-coral/30 transition-colors"
+                    className="w-full flex items-center gap-3 p-3.5 bg-ink-3/60 rounded-2xl border border-white/[0.06] hover:border-gold/30 transition-colors"
                   >
-                    <span className="text-2xl">{col.emoji}</span>
+                    <span
+                      className="w-10 h-10 rounded-xl flex items-center justify-center text-lg"
+                      style={{ background: `${col.color}1F`, boxShadow: `inset 0 0 0 1px ${col.color}40` }}
+                    >
+                      {col.emoji}
+                    </span>
                     <div className="flex-1 text-left">
-                      <p className="font-semibold text-navy text-sm">{col.name}</p>
-                      <p className="text-warm-gray text-xs">{col.placeIds.length} places</p>
+                      <p className="font-semibold text-cream text-sm">{col.name}</p>
+                      <p className="text-faint text-xs">{col.placeIds.length} places</p>
                     </div>
                     {added.has(col.id) ? (
                       <Check size={18} className="text-mint" />
                     ) : (
-                      <Plus size={18} className="text-warm-gray" />
+                      <Plus size={18} className="text-faint" />
                     )}
                   </motion.button>
                 ))}
@@ -89,12 +94,12 @@ export default function AddToCollectionModal({ place, isOpen, onClose }) {
                     onChange={e => setNewName(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && handleCreate()}
                     placeholder="Collection name..."
-                    className="flex-1 px-4 py-2.5 rounded-xl border border-sand bg-white text-navy text-sm outline-none focus:border-coral transition-colors"
+                    className="flex-1 px-4 py-2.5 rounded-xl bg-ink-3 hairline text-cream text-sm placeholder:text-faint outline-none focus:border-gold/40 transition-colors"
                   />
                   <motion.button
                     whileTap={{ scale: 0.9 }}
                     onClick={handleCreate}
-                    className="px-4 py-2.5 bg-coral text-white rounded-xl font-semibold text-sm"
+                    className="px-4 py-2.5 btn-gold rounded-xl font-semibold text-sm"
                   >
                     Create
                   </motion.button>
@@ -103,12 +108,12 @@ export default function AddToCollectionModal({ place, isOpen, onClose }) {
                 <motion.button
                   whileTap={{ scale: 0.97 }}
                   onClick={() => setCreating(true)}
-                  className="w-full flex items-center gap-3 p-3.5 border-2 border-dashed border-sand rounded-2xl hover:border-coral/40 transition-colors"
+                  className="w-full flex items-center gap-3 p-3.5 border-2 border-dashed border-white/10 rounded-2xl hover:border-gold/30 transition-colors"
                 >
-                  <div className="w-9 h-9 rounded-xl bg-peach-light/30 flex items-center justify-center">
-                    <Plus size={18} className="text-coral" />
+                  <div className="w-9 h-9 rounded-xl bg-gold/10 flex items-center justify-center">
+                    <Plus size={18} className="text-gold" />
                   </div>
-                  <span className="font-medium text-slate text-sm">New Collection</span>
+                  <span className="font-medium text-muted text-sm">New collection</span>
                 </motion.button>
               )}
             </div>

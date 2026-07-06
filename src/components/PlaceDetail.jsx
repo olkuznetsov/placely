@@ -1,19 +1,26 @@
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Heart, MapPin, Clock, Star, Share2, Navigation, ChevronLeft, ChevronRight, Bookmark } from 'lucide-react'
+import { X, Heart, MapPin, Clock, Star, Share2, Navigation, ChevronLeft, ChevronRight, Bookmark, CheckCircle2 } from 'lucide-react'
 import { useState } from 'react'
 import { useToast } from './Toast'
 import AddToCollectionModal from './AddToCollectionModal'
+import { categoryMeta } from '../data/mockData'
 
-export default function PlaceDetail({ place, isOpen, onClose, isSaved, onToggleSave }) {
+export default function PlaceDetail({ place, isOpen, onClose, isSaved, onToggleSave, isVisited, onToggleVisited }) {
   const showToast = useToast()
   const [photoIndex, setPhotoIndex] = useState(0)
   const [collectionOpen, setCollectionOpen] = useState(false)
 
   if (!place) return null
+  const meta = categoryMeta[place.category]
 
   function handleSave() {
     onToggleSave?.(place.id)
-    showToast({ message: isSaved ? 'Removed from saved' : `Saved "${place.name}"!` })
+    showToast({ message: isSaved ? 'Removed from your atlas' : `Pinned "${place.name}" ✦` })
+  }
+
+  function handleVisited() {
+    onToggleVisited?.(place.id)
+    showToast({ message: isVisited ? 'Back on the wishlist' : 'Marked as lived ✦' })
   }
 
   function handleShare() {
@@ -21,7 +28,7 @@ export default function PlaceDetail({ place, isOpen, onClose, isSaved, onToggleS
       navigator.share({ title: place.name, text: place.description })
     } else {
       navigator.clipboard?.writeText(window.location.href)
-      showToast({ message: 'Link copied to clipboard!', type: 'info' })
+      showToast({ message: 'Link copied to clipboard', type: 'info' })
     }
   }
 
@@ -40,7 +47,7 @@ export default function PlaceDetail({ place, isOpen, onClose, isSaved, onToggleS
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={onClose}
-              className="fixed inset-0 bg-navy/60 backdrop-blur-sm z-[60]"
+              className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[60]"
             />
 
             <motion.div
@@ -48,48 +55,49 @@ export default function PlaceDetail({ place, isOpen, onClose, isSaved, onToggleS
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
               transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-              className="fixed bottom-0 left-0 right-0 z-[70] bg-warm-white rounded-t-3xl max-h-[92vh] overflow-y-auto"
+              className="fixed bottom-0 left-0 right-0 z-[70] max-w-lg mx-auto bg-ink-2 rounded-t-[28px] max-h-[92vh] overflow-y-auto hairline-t shadow-pop"
             >
-              <div className="flex justify-center py-3">
-                <div className="w-10 h-1 rounded-full bg-sand" />
-              </div>
-
-              {/* Photo carousel */}
-              <div className="relative h-64 mx-4 rounded-2xl overflow-hidden">
+              {/* photo hero — full bleed */}
+              <div className="relative h-72 overflow-hidden rounded-t-[28px]">
                 <AnimatePresence mode="wait">
                   <motion.img
                     key={photoIndex}
                     src={place.photos?.[photoIndex] || place.image}
                     alt={place.name}
                     className="w-full h-full object-cover"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
+                    initial={{ opacity: 0, scale: 1.04 }}
+                    animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0 }}
-                    transition={{ duration: 0.3 }}
+                    transition={{ duration: 0.35 }}
                   />
                 </AnimatePresence>
+                <div className="absolute inset-0 bg-gradient-to-t from-ink-2 via-ink-2/20 to-black/30" />
+
+                <div className="absolute top-0 inset-x-0 flex justify-center pt-3">
+                  <div className="w-10 h-1 rounded-full bg-white/25" />
+                </div>
 
                 {place.photos?.length > 1 && (
                   <>
                     <button
                       onClick={() => setPhotoIndex(i => (i - 1 + place.photos.length) % place.photos.length)}
-                      className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full glass flex items-center justify-center"
+                      className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full glass-chip flex items-center justify-center"
                     >
-                      <ChevronLeft size={16} className="text-white" />
+                      <ChevronLeft size={16} className="text-cream" />
                     </button>
                     <button
                       onClick={() => setPhotoIndex(i => (i + 1) % place.photos.length)}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full glass flex items-center justify-center"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full glass-chip flex items-center justify-center"
                     >
-                      <ChevronRight size={16} className="text-white" />
+                      <ChevronRight size={16} className="text-cream" />
                     </button>
-                    <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+                    <div className="absolute top-8 left-1/2 -translate-x-1/2 flex gap-1.5">
                       {place.photos.map((_, i) => (
                         <motion.button
                           key={i}
                           onClick={() => setPhotoIndex(i)}
-                          className={`w-2 h-2 rounded-full transition-colors ${i === photoIndex ? 'bg-white' : 'bg-white/40'}`}
-                          animate={{ scale: i === photoIndex ? 1.2 : 1 }}
+                          className={`w-1.5 h-1.5 rounded-full transition-colors ${i === photoIndex ? 'bg-gold' : 'bg-white/35'}`}
+                          animate={{ scale: i === photoIndex ? 1.4 : 1 }}
                         />
                       ))}
                     </div>
@@ -98,105 +106,128 @@ export default function PlaceDetail({ place, isOpen, onClose, isSaved, onToggleS
 
                 <button
                   onClick={onClose}
-                  className="absolute top-3 right-3 w-8 h-8 rounded-full glass flex items-center justify-center"
+                  className="absolute top-4 right-4 w-8 h-8 rounded-full glass-chip flex items-center justify-center"
                 >
-                  <X size={16} className="text-white" />
+                  <X size={15} className="text-cream" />
                 </button>
+
+                {/* name over image */}
+                <div className="absolute bottom-0 inset-x-0 px-5 pb-3">
+                  {meta && (
+                    <span
+                      className="inline-block text-[11px] font-semibold tracking-widest uppercase mb-1"
+                      style={{ color: meta.color }}
+                    >
+                      {meta.label}
+                    </span>
+                  )}
+                  <h2 className="font-display text-3xl text-cream leading-tight">{place.name}</h2>
+                  {place.cuisine && <p className="text-muted text-sm mt-0.5">{place.cuisine}</p>}
+                </div>
               </div>
 
-              {/* Content */}
-              <div className="px-5 pt-4 pb-10">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex-1">
-                    <h2 className="text-2xl font-bold text-navy">{place.name}</h2>
-                    {place.cuisine && (
-                      <p className="text-warm-gray text-sm mt-0.5">{place.cuisine}</p>
+              {/* content */}
+              <div className="px-5 pt-4 pb-28">
+                {/* rating row + actions */}
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-1.5">
+                      <Star size={15} className="fill-gold text-gold" />
+                      <span className="font-bold text-cream">{place.rating}</span>
+                      <span className="text-faint text-xs">({place.reviewCount})</span>
+                    </div>
+                    {place.priceRange && (
+                      <span className="text-gold-soft font-semibold text-sm">{place.priceRange}</span>
                     )}
                   </div>
-                  <div className="flex gap-2 shrink-0">
+                  <div className="flex gap-2">
                     <motion.button
                       whileTap={{ scale: 0.85 }}
                       onClick={handleSave}
-                      className={`w-11 h-11 rounded-full flex items-center justify-center transition-colors ${
-                        isSaved ? 'bg-coral text-white' : 'bg-peach-light/50 text-coral'
+                      className={`w-10 h-10 rounded-full flex items-center justify-center transition-all border ${
+                        isSaved
+                          ? 'bg-gold/15 border-gold/40 text-gold glow-gold'
+                          : 'bg-ink-3 border-white/[0.07] text-muted'
                       }`}
                     >
-                      <Heart size={20} className={isSaved ? 'fill-white' : ''} />
+                      <Heart size={18} className={isSaved ? 'fill-gold' : ''} />
+                    </motion.button>
+                    <motion.button
+                      whileTap={{ scale: 0.85 }}
+                      onClick={handleVisited}
+                      className={`w-10 h-10 rounded-full flex items-center justify-center transition-all border ${
+                        isVisited
+                          ? 'bg-mint/15 border-mint/40 text-mint'
+                          : 'bg-ink-3 border-white/[0.07] text-muted'
+                      }`}
+                      title={isVisited ? 'Visited' : 'Mark as visited'}
+                    >
+                      <CheckCircle2 size={18} />
                     </motion.button>
                     <motion.button
                       whileTap={{ scale: 0.85 }}
                       onClick={handleShare}
-                      className="w-11 h-11 rounded-full bg-sky/10 text-sky flex items-center justify-center"
+                      className="w-10 h-10 rounded-full bg-ink-3 border border-white/[0.07] text-muted flex items-center justify-center"
                     >
-                      <Share2 size={20} />
+                      <Share2 size={17} />
                     </motion.button>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-4 mt-4">
-                  <div className="flex items-center gap-1.5">
-                    <Star size={16} className="fill-amber text-amber" />
-                    <span className="font-bold text-navy">{place.rating}</span>
-                    <span className="text-warm-gray text-sm">({place.reviewCount} reviews)</span>
-                  </div>
-                  {place.priceRange && (
-                    <span className="text-mint font-semibold">{place.priceRange}</span>
-                  )}
-                </div>
-
+                {/* info cards */}
                 <div className="grid grid-cols-2 gap-3 mt-5">
-                  <div className="bg-cream rounded-xl p-3">
-                    <div className="flex items-center gap-2 text-coral">
-                      <MapPin size={15} />
-                      <span className="text-xs font-semibold uppercase tracking-wide">Location</span>
+                  <div className="bg-ink-3/70 hairline rounded-2xl p-3.5">
+                    <div className="flex items-center gap-2 text-gold">
+                      <MapPin size={14} />
+                      <span className="text-[10px] font-semibold uppercase tracking-widest">Location</span>
                     </div>
-                    <p className="text-navy text-sm mt-1.5">{place.address}</p>
+                    <p className="text-cream/90 text-[13px] mt-2 leading-snug">{place.address}</p>
                   </div>
-                  <div className="bg-cream rounded-xl p-3">
-                    <div className="flex items-center gap-2 text-coral">
-                      <Clock size={15} />
-                      <span className="text-xs font-semibold uppercase tracking-wide">Hours</span>
+                  <div className="bg-ink-3/70 hairline rounded-2xl p-3.5">
+                    <div className="flex items-center gap-2 text-gold">
+                      <Clock size={14} />
+                      <span className="text-[10px] font-semibold uppercase tracking-widest">Hours</span>
                     </div>
-                    <p className="text-navy text-sm mt-1.5 line-clamp-2">{place.hours}</p>
+                    <p className="text-cream/90 text-[13px] mt-2 leading-snug line-clamp-2">{place.hours}</p>
                   </div>
                 </div>
 
                 <div className="mt-5">
-                  <h3 className="font-semibold text-navy text-sm mb-2">About</h3>
-                  <p className="text-slate text-sm leading-relaxed">{place.description}</p>
+                  <h3 className="font-display italic text-gold-soft text-lg mb-1.5">The story</h3>
+                  <p className="text-muted text-sm leading-relaxed">{place.description}</p>
                 </div>
 
                 <div className="flex flex-wrap gap-2 mt-4">
                   {place.tags.map(tag => (
-                    <span key={tag} className="px-3 py-1.5 rounded-full bg-peach-light/30 text-coral-dark text-xs font-medium">
+                    <span key={tag} className="px-3 py-1.5 rounded-full bg-ink-3/70 hairline text-muted text-xs">
                       #{tag}
                     </span>
                   ))}
                 </div>
 
                 {place.savedBy?.length > 0 && (
-                  <div className="mt-5 pt-4 border-t border-sand/50">
-                    <p className="text-sm text-warm-gray">
-                      <span className="font-semibold text-navy">{place.savedBy.length} friends</span> saved this place
+                  <div className="mt-5 pt-4 hairline-t">
+                    <p className="text-sm text-faint">
+                      <span className="font-semibold text-gold-soft">{place.savedBy.length} friends</span> keep this place in their atlas
                     </p>
                   </div>
                 )}
 
-                <div className="flex gap-3 mt-5">
+                <div className="flex gap-3 mt-6">
                   <motion.button
                     whileTap={{ scale: 0.95 }}
                     onClick={handleDirections}
-                    className="flex-1 flex items-center justify-center gap-2 py-3.5 bg-coral text-white font-semibold rounded-xl shadow-lg shadow-coral/25"
+                    className="flex-1 flex items-center justify-center gap-2 py-3.5 btn-gold font-semibold rounded-2xl text-sm"
                   >
-                    <Navigation size={18} />
+                    <Navigation size={17} />
                     Directions
                   </motion.button>
                   <motion.button
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setCollectionOpen(true)}
-                    className="flex items-center justify-center gap-2 py-3.5 px-5 bg-navy text-white font-semibold rounded-xl"
+                    className="flex items-center justify-center gap-2 py-3.5 px-5 bg-ink-3 hairline text-cream font-semibold rounded-2xl text-sm"
                   >
-                    <Bookmark size={18} />
+                    <Bookmark size={17} />
                     Collect
                   </motion.button>
                 </div>

@@ -1,40 +1,28 @@
 import { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
+import { MapContainer, TileLayer, Marker } from 'react-leaflet'
 import L from 'leaflet'
-import { Search, Filter, List, Map as MapIcon, Star, Heart, MapPin, Navigation } from 'lucide-react'
+import { Search, List, Map as MapIcon, Navigation } from 'lucide-react'
 import PlaceCard from '../components/PlaceCard'
 import CategoryFilter from '../components/CategoryFilter'
 import PlaceDetail from '../components/PlaceDetail'
-import { places } from '../data/mockData'
+import { places, categoryMeta } from '../data/mockData'
 
 function createMarkerIcon(category) {
-  const colors = {
-    restaurant: '#FF6B6B',
-    cafe: '#FFB830',
-    bar: '#B088F9',
-    park: '#6BCB77',
-    museum: '#4D96FF',
-    bakery: '#FFB4A2',
-    viewpoint: '#FF8E8E',
-  }
-  const color = colors[category] || '#FF6B6B'
-
+  const color = categoryMeta[category]?.color ?? '#EFB35C'
   return L.divIcon({
     className: 'custom-marker',
-    html: `<div style="
-      width: 36px; height: 36px; border-radius: 50% 50% 50% 0;
-      background: ${color}; transform: rotate(-45deg);
-      display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 4px 12px ${color}66;
-    "><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transform: rotate(45deg)"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></div>`,
-    iconSize: [36, 36],
-    iconAnchor: [18, 36],
-    popupAnchor: [0, -36],
+    html: `<div style="position:relative;width:18px;height:18px">
+      <div class="marker-pulse" style="background:${color}30"></div>
+      <div style="position:absolute;inset:0;border-radius:50%;background:${color};border:2px solid rgba(255,255,255,0.85);box-shadow:0 0 14px 3px ${color}99"></div>
+    </div>`,
+    iconSize: [18, 18],
+    iconAnchor: [9, 9],
+    popupAnchor: [0, -12],
   })
 }
 
-export default function ExplorePage({ isSaved, toggleSave }) {
+export default function ExplorePage({ isSaved, toggleSave, isVisited, toggleVisited }) {
   const [view, setView] = useState('map')
   const [category, setCategory] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
@@ -54,43 +42,39 @@ export default function ExplorePage({ isSaved, toggleSave }) {
   const center = [40.7580, -73.9855]
 
   return (
-    <div className="min-h-screen pb-24">
-      {/* Header */}
-      <div className="bg-warm-white sticky top-0 z-30 border-b border-sand/40">
+    <div className="min-h-screen pb-32">
+      {/* header */}
+      <div className="sticky top-0 z-30 bg-ink/85 backdrop-blur-xl border-b border-white/[0.06]">
         <div className="px-5 pt-12 pb-3">
           <div className="flex items-center justify-between mb-3">
-            <h1 className="text-2xl font-bold text-navy">Explore</h1>
-            <div className="flex items-center gap-2">
-              <motion.button
-                whileTap={{ scale: 0.9 }}
-                onClick={() => setView('map')}
-                className={`p-2 rounded-xl transition-colors ${
-                  view === 'map' ? 'bg-coral text-white' : 'bg-sand/40 text-slate'
-                }`}
-              >
-                <MapIcon size={18} />
-              </motion.button>
-              <motion.button
-                whileTap={{ scale: 0.9 }}
-                onClick={() => setView('list')}
-                className={`p-2 rounded-xl transition-colors ${
-                  view === 'list' ? 'bg-coral text-white' : 'bg-sand/40 text-slate'
-                }`}
-              >
-                <List size={18} />
-              </motion.button>
+            <h1 className="font-display text-2xl text-cream">Explore</h1>
+            <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-ink-3/70 hairline">
+              {[
+                { id: 'map', icon: MapIcon },
+                { id: 'list', icon: List },
+              ].map(({ id, icon: Icon }) => (
+                <motion.button
+                  key={id}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => setView(id)}
+                  className={`p-2 rounded-xl transition-all ${
+                    view === id ? 'bg-gold/15 text-gold shadow-[inset_0_0_0_1px_rgba(239,179,92,0.3)]' : 'text-faint'
+                  }`}
+                >
+                  <Icon size={17} />
+                </motion.button>
+              ))}
             </div>
           </div>
 
-          {/* Search */}
           <div className="relative">
-            <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-warm-gray" />
+            <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-faint" />
             <input
               type="text"
-              placeholder="Find a place near you..."
+              placeholder="Find a place in the dark..."
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-2.5 rounded-xl bg-sand/30 text-navy text-sm placeholder:text-warm-gray outline-none focus:ring-2 focus:ring-coral/30 transition"
+              className="w-full pl-11 pr-4 py-2.5 rounded-2xl bg-ink-3/70 hairline text-cream text-sm placeholder:text-faint outline-none focus:border-gold/30 transition-colors"
             />
           </div>
         </div>
@@ -105,8 +89,8 @@ export default function ExplorePage({ isSaved, toggleSave }) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            {/* Map View */}
-            <div className="relative mx-4 mt-4 rounded-2xl overflow-hidden shadow-lg" style={{ height: 'calc(100vh - 320px)' }}>
+            {/* isolate: contain Leaflet's z-indexes (400-1000) so fixed sheets stack above the map */}
+            <div className="relative isolate z-0 mx-4 mt-4 rounded-3xl overflow-hidden hairline shadow-pop" style={{ height: 'calc(100vh - 350px)' }}>
               <MapContainer
                 center={center}
                 zoom={13}
@@ -114,8 +98,8 @@ export default function ExplorePage({ isSaved, toggleSave }) {
                 zoomControl={false}
               >
                 <TileLayer
-                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                  url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>'
+                  url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
                 />
                 {filtered.map(place => (
                   <Marker
@@ -125,32 +109,20 @@ export default function ExplorePage({ isSaved, toggleSave }) {
                     eventHandlers={{
                       click: () => setSelectedPlace(place),
                     }}
-                  >
-                    <Popup className="custom-popup">
-                      <div className="font-sans p-1">
-                        <img src={place.image} alt={place.name} className="w-full h-24 object-cover rounded-lg mb-2" />
-                        <h3 className="font-bold text-sm">{place.name}</h3>
-                        <div className="flex items-center gap-1 mt-1">
-                          <Star size={12} className="fill-amber text-amber" />
-                          <span className="text-xs">{place.rating}</span>
-                          <span className="text-xs text-gray-400">· {place.priceRange}</span>
-                        </div>
-                      </div>
-                    </Popup>
-                  </Marker>
+                  />
                 ))}
               </MapContainer>
 
-              {/* Map overlay info */}
-              <div className="absolute bottom-4 left-4 right-4">
-                <div className="glass rounded-2xl p-3 flex items-center justify-between">
+              {/* overlay info */}
+              <div className="absolute bottom-4 left-4 right-4 z-[1000]">
+                <div className="glass-panel rounded-2xl p-3 flex items-center justify-between shadow-pop">
                   <div>
-                    <p className="text-navy font-semibold text-sm">{filtered.length} places nearby</p>
-                    <p className="text-warm-gray text-xs">Tap a pin for details</p>
+                    <p className="text-cream font-semibold text-sm">{filtered.length} lights on the map</p>
+                    <p className="text-faint text-xs">Tap a glow for details</p>
                   </div>
                   <motion.button
                     whileTap={{ scale: 0.9 }}
-                    className="flex items-center gap-1.5 px-4 py-2 bg-coral text-white rounded-xl text-sm font-medium"
+                    className="flex items-center gap-1.5 px-4 py-2 btn-gold rounded-xl text-sm font-semibold"
                   >
                     <Navigation size={14} />
                     Near me
@@ -167,8 +139,8 @@ export default function ExplorePage({ isSaved, toggleSave }) {
             exit={{ opacity: 0 }}
             className="px-5 mt-4"
           >
-            <p className="text-warm-gray text-sm mb-4">{filtered.length} places found</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <p className="text-faint text-sm mb-4">{filtered.length} places found</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {filtered.map((place, i) => (
                 <PlaceCard
                   key={place.id}
@@ -190,6 +162,8 @@ export default function ExplorePage({ isSaved, toggleSave }) {
         onClose={() => setSelectedPlace(null)}
         isSaved={selectedPlace ? isSaved(selectedPlace.id) : false}
         onToggleSave={toggleSave}
+        isVisited={selectedPlace ? isVisited(selectedPlace.id) : false}
+        onToggleVisited={toggleVisited}
       />
     </div>
   )

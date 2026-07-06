@@ -41,18 +41,14 @@ export function ToastProvider({ children }) {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -10, scale: 0.95 }}
               transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-              className="pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-2xl shadow-xl max-w-sm w-full"
-              style={{
-                background: toast.type === 'success' ? '#1A1B3A' : '#4D96FF',
-                color: 'white',
-              }}
+              className="pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-2xl glass-panel shadow-pop max-w-sm w-full"
             >
               {toast.type === 'success'
-                ? <CheckCircle size={18} className="text-mint shrink-0" />
-                : <Info size={18} className="text-peach shrink-0" />
+                ? <CheckCircle size={18} className="text-gold shrink-0" />
+                : <Info size={18} className="text-skyblue shrink-0" />
               }
-              <span className="text-sm font-medium flex-1">{toast.message}</span>
-              <button onClick={() => dismiss(toast.id)} className="opacity-60 hover:opacity-100">
+              <span className="text-sm font-medium flex-1 text-cream">{toast.message}</span>
+              <button onClick={() => dismiss(toast.id)} className="text-faint hover:text-cream transition-colors">
                 <X size={14} />
               </button>
             </motion.div>

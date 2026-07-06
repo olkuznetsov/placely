@@ -5,9 +5,9 @@ import { friends, activityFeed } from '../data/mockData'
 import { useToast } from '../components/Toast'
 
 const suggestedUsers = [
-  { id: 10, name: 'Mia Park', username: '@mia.p', initials: 'M', color: 'from-coral to-peach' },
-  { id: 11, name: 'Luca Rossi', username: '@luca.r', initials: 'L', color: 'from-sky to-lavender' },
-  { id: 12, name: 'Zoe Ng', username: '@zoe.n', initials: 'Z', color: 'from-mint to-sky' },
+  { id: 10, name: 'Mia Park', username: '@mia.p', initials: 'M', color: '#FB7185' },
+  { id: 11, name: 'Luca Rossi', username: '@luca.r', initials: 'L', color: '#A78BFA' },
+  { id: 12, name: 'Zoe Ng', username: '@zoe.n', initials: 'Z', color: '#5EEAD4' },
 ]
 
 function AddFriendSheet({ isOpen, onClose }) {
@@ -24,7 +24,7 @@ function AddFriendSheet({ isOpen, onClose }) {
 
   function sendRequest(user) {
     setSent(prev => new Set([...prev, user.id]))
-    showToast({ message: `Friend request sent to ${user.name}!` })
+    showToast({ message: `Friend request sent to ${user.name} ✦` })
   }
 
   return (
@@ -34,38 +34,38 @@ function AddFriendSheet({ isOpen, onClose }) {
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-navy/50 backdrop-blur-sm z-[80]"
+            className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[80]"
           />
           <motion.div
             initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-            className="fixed bottom-0 left-0 right-0 z-[90] bg-warm-white rounded-t-3xl max-h-[80vh] overflow-y-auto"
+            className="fixed bottom-0 left-0 right-0 z-[90] max-w-lg mx-auto bg-ink-2 rounded-t-[28px] max-h-[80vh] overflow-y-auto hairline-t shadow-pop"
           >
             <div className="flex justify-center py-3">
-              <div className="w-10 h-1 rounded-full bg-sand" />
+              <div className="w-10 h-1 rounded-full bg-white/20" />
             </div>
             <div className="px-5 pb-10">
               <div className="flex items-center justify-between mb-5">
-                <h2 className="text-xl font-bold text-navy">Add Friends</h2>
-                <button onClick={onClose} className="w-8 h-8 rounded-full bg-sand/40 flex items-center justify-center">
-                  <X size={16} className="text-slate" />
+                <h2 className="font-display text-2xl text-cream">Add friends</h2>
+                <button onClick={onClose} className="w-8 h-8 rounded-full bg-ink-3 hairline flex items-center justify-center">
+                  <X size={15} className="text-muted" />
                 </button>
               </div>
 
               <div className="relative mb-5">
-                <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-warm-gray" />
+                <Search size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-faint" />
                 <input
                   autoFocus
                   type="text"
                   placeholder="Search by name or username..."
                   value={query}
                   onChange={e => setQuery(e.target.value)}
-                  className="w-full pl-11 pr-4 py-3 rounded-xl bg-sand/30 text-navy text-sm placeholder:text-warm-gray outline-none focus:ring-2 focus:ring-coral/30"
+                  className="w-full pl-11 pr-4 py-3 rounded-2xl bg-ink-3 hairline text-cream text-sm placeholder:text-faint outline-none focus:border-gold/30 transition-colors"
                 />
               </div>
 
-              <p className="text-xs font-semibold text-warm-gray uppercase tracking-wide mb-3">
-                {query.length > 1 ? 'Search Results' : 'Suggested'}
+              <p className="text-[10px] font-semibold text-faint uppercase tracking-widest mb-3">
+                {query.length > 1 ? 'Search results' : 'Suggested'}
               </p>
 
               <div className="space-y-2">
@@ -74,14 +74,17 @@ function AddFriendSheet({ isOpen, onClose }) {
                     key={user.id}
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="flex items-center gap-3 p-3.5 bg-white rounded-2xl border border-sand/40"
+                    className="flex items-center gap-3 p-3.5 bg-ink-3/60 rounded-2xl hairline"
                   >
-                    <div className={`w-11 h-11 rounded-full bg-gradient-to-br ${user.color} flex items-center justify-center text-white font-bold text-base`}>
+                    <div
+                      className="w-11 h-11 rounded-full flex items-center justify-center font-bold text-base"
+                      style={{ background: `${user.color}22`, color: user.color, boxShadow: `inset 0 0 0 1px ${user.color}50` }}
+                    >
                       {user.initials}
                     </div>
                     <div className="flex-1">
-                      <p className="font-semibold text-navy text-sm">{user.name}</p>
-                      <p className="text-warm-gray text-xs">{user.username}</p>
+                      <p className="font-semibold text-cream text-sm">{user.name}</p>
+                      <p className="text-faint text-xs">{user.username}</p>
                     </div>
                     <motion.button
                       whileTap={{ scale: 0.85 }}
@@ -90,7 +93,7 @@ function AddFriendSheet({ isOpen, onClose }) {
                       className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold transition-colors ${
                         sent.has(user.id)
                           ? 'bg-mint/10 text-mint'
-                          : 'bg-coral text-white shadow-md shadow-coral/20'
+                          : 'btn-gold'
                       }`}
                     >
                       {sent.has(user.id) ? <><Check size={14} /> Sent</> : <><UserPlus size={14} /> Add</>}
@@ -98,7 +101,7 @@ function AddFriendSheet({ isOpen, onClose }) {
                   </motion.div>
                 ))}
                 {results.length === 0 && (
-                  <p className="text-center text-warm-gray py-8 text-sm">No users found for "{query}"</p>
+                  <p className="text-center text-faint py-8 text-sm">No travelers found for "{query}"</p>
                 )}
               </div>
             </div>
@@ -109,51 +112,53 @@ function AddFriendSheet({ isOpen, onClose }) {
   )
 }
 
-function FriendCard({ friend, index }) {
+function FriendCard({ friend }) {
   const showToast = useToast()
   return (
     <motion.div
       whileHover={{ y: -2 }}
-      className="bg-white rounded-2xl p-4 shadow-sm border border-sand/40 cursor-pointer"
+      className="bg-ink-2 rounded-3xl p-4 hairline shadow-depth cursor-pointer"
     >
       <div className="flex items-center gap-3">
         <div className="relative">
           <img
             src={friend.avatar}
             alt={friend.name}
-            className="w-12 h-12 rounded-full object-cover"
+            className="w-12 h-12 rounded-full object-cover ring-1 ring-white/10"
           />
           {friend.isOnline && (
-            <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-mint border-2 border-white" />
+            <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-mint border-2 border-ink-2"
+              style={{ boxShadow: '0 0 8px rgba(110,231,160,0.7)' }}
+            />
           )}
         </div>
         <div className="flex-1 min-w-0">
-          <h3 className="font-bold text-navy text-sm">{friend.name}</h3>
-          <p className="text-warm-gray text-xs">{friend.username}</p>
+          <h3 className="font-semibold text-cream text-sm">{friend.name}</h3>
+          <p className="text-faint text-xs">{friend.username}</p>
         </div>
         <motion.button
           whileTap={{ scale: 0.9 }}
-          onClick={() => showToast({ message: `${friend.name}'s profile — coming soon!`, type: 'info' })}
-          className="px-3 py-1.5 bg-coral/10 text-coral rounded-lg text-xs font-semibold hover:bg-coral/20 transition-colors"
+          onClick={() => showToast({ message: `${friend.name}'s atlas — coming soon`, type: 'info' })}
+          className="px-3 py-1.5 bg-gold/10 text-gold-soft rounded-lg text-xs font-semibold border border-gold/20 hover:bg-gold/20 transition-colors"
         >
           View
         </motion.button>
       </div>
 
-      <div className="flex items-center gap-4 mt-3 pt-3 border-t border-sand/30">
+      <div className="flex items-center gap-4 mt-3 pt-3 hairline-t">
         <div className="flex items-center gap-1.5">
-          <MapPin size={12} className="text-coral" />
-          <span className="text-xs text-slate">{friend.savedCount} saved</span>
+          <MapPin size={12} className="text-gold" />
+          <span className="text-xs text-muted">{friend.savedCount} saved</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <Heart size={12} className="text-coral" />
-          <span className="text-xs text-slate">{friend.mutualPlaces} mutual</span>
+          <Heart size={12} className="text-rose" />
+          <span className="text-xs text-muted">{friend.mutualPlaces} mutual</span>
         </div>
       </div>
 
-      <div className="mt-2.5 bg-cream/60 rounded-lg px-3 py-2">
-        <p className="text-xs text-slate">
-          <span className="text-warm-gray">{friend.recentTime}:</span> {friend.recentActivity}
+      <div className="mt-2.5 bg-ink-3/60 rounded-xl px-3 py-2">
+        <p className="text-xs text-muted">
+          <span className="text-faint">{friend.recentTime}:</span> {friend.recentActivity}
         </p>
       </div>
     </motion.div>
@@ -163,70 +168,66 @@ function FriendCard({ friend, index }) {
 function ActivityItem({ activity, index }) {
   return (
     <div className="flex gap-3">
-      {/* Timeline */}
+      {/* timeline */}
       <div className="flex flex-col items-center">
         <img
           src={activity.user.avatar}
           alt={activity.user.name}
-          className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm"
+          className="w-10 h-10 rounded-full object-cover ring-1 ring-gold/25"
         />
         {index < activityFeed.length - 1 && (
-          <div className="w-0.5 flex-1 bg-sand/50 mt-2" />
+          <div className="w-px flex-1 bg-gradient-to-b from-white/15 to-transparent mt-2" />
         )}
       </div>
 
-      {/* Content */}
+      {/* content */}
       <div className="flex-1 pb-6">
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-sand/30">
+        <div className="bg-ink-2 rounded-3xl p-4 hairline shadow-depth">
           <div className="flex items-center justify-between">
-            <p className="text-sm">
-              <span className="font-bold text-navy">{activity.user.name}</span>{' '}
-              <span className="text-warm-gray">
-                {activity.action === 'saved' && 'saved a place'}
+            <p className="text-sm text-cream">
+              <span className="font-bold">{activity.user.name}</span>{' '}
+              <span className="text-faint">
+                {activity.action === 'saved' && 'pinned a place'}
                 {activity.action === 'visited' && 'visited'}
                 {activity.action === 'reviewed' && 'reviewed'}
                 {activity.action === 'created_collection' && 'created a collection'}
               </span>
             </p>
-            <span className="text-[11px] text-warm-gray">{activity.time}</span>
+            <span className="text-[10px] text-faint">{activity.time}</span>
           </div>
 
           {activity.place && (
-            <div className="flex items-center gap-3 mt-3 p-2.5 bg-cream/50 rounded-xl">
+            <div className="flex items-center gap-3 mt-3 p-2.5 bg-ink-3/60 rounded-2xl">
               <img
                 src={activity.place.image}
                 alt={activity.place.name}
-                className="w-14 h-14 rounded-lg object-cover"
+                className="w-14 h-14 rounded-xl object-cover"
               />
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-navy text-sm truncate">{activity.place.name}</p>
+                <p className="font-semibold text-cream text-sm truncate">{activity.place.name}</p>
                 <div className="flex items-center gap-2 mt-0.5">
                   <div className="flex items-center gap-0.5">
-                    <Star size={11} className="fill-amber text-amber" />
-                    <span className="text-xs text-navy">{activity.place.rating}</span>
+                    <Star size={11} className="fill-gold text-gold" />
+                    <span className="text-xs text-cream/80">{activity.place.rating}</span>
                   </div>
-                  <span className="text-xs text-warm-gray">{activity.place.cuisine || activity.place.category}</span>
+                  <span className="text-xs text-faint">{activity.place.cuisine || activity.place.category}</span>
                 </div>
               </div>
             </div>
           )}
 
           {activity.collectionName && (
-            <div className="mt-2 px-3 py-2 bg-lavender/10 rounded-xl">
-              <p className="text-sm font-medium text-lavender">{activity.collectionName}</p>
+            <div className="mt-2 px-3 py-2 bg-violet/10 border border-violet/20 rounded-2xl">
+              <p className="text-sm font-medium text-violet">{activity.collectionName}</p>
             </div>
           )}
 
           {activity.note && (
-            <p className="text-sm text-slate mt-2.5 leading-relaxed">{activity.note}</p>
+            <p className="text-sm text-muted mt-2.5 leading-relaxed">{activity.note}</p>
           )}
 
           {activity.photo && (
-            <img
-              src={activity.photo}
-              alt=""
-              className="w-full h-40 object-cover rounded-xl mt-3"
-            />
+            <img src={activity.photo} alt="" className="w-full h-40 object-cover rounded-2xl mt-3" />
           )}
 
           {activity.rating && (
@@ -235,13 +236,12 @@ function ActivityItem({ activity, index }) {
                 <Star
                   key={i}
                   size={14}
-                  className={i < activity.rating ? 'fill-amber text-amber' : 'text-sand'}
+                  className={i < activity.rating ? 'fill-gold text-gold' : 'text-white/15'}
                 />
               ))}
             </div>
           )}
 
-          {/* Action buttons */}
           <ActivityActions />
         </div>
       </div>
@@ -253,25 +253,25 @@ function ActivityActions() {
   const showToast = useToast()
   const [liked, setLiked] = useState(false)
   return (
-    <div className="flex items-center gap-4 mt-3 pt-3 border-t border-sand/30">
+    <div className="flex items-center gap-4 mt-3 pt-3 hairline-t">
       <motion.button
         whileTap={{ scale: 0.9 }}
-        onClick={() => { setLiked(v => !v); showToast({ message: liked ? 'Like removed' : 'Liked!' }) }}
-        className={`flex items-center gap-1 text-xs font-medium transition-colors ${liked ? 'text-coral' : 'text-warm-gray hover:text-coral'}`}
+        onClick={() => { setLiked(v => !v); showToast({ message: liked ? 'Like removed' : 'Liked ✦' }) }}
+        className={`flex items-center gap-1 text-xs font-medium transition-colors ${liked ? 'text-gold' : 'text-faint hover:text-gold'}`}
       >
-        <Heart size={14} className={liked ? 'fill-coral' : ''} /> {liked ? 'Liked' : 'Like'}
+        <Heart size={14} className={liked ? 'fill-gold' : ''} /> {liked ? 'Liked' : 'Like'}
       </motion.button>
       <motion.button
         whileTap={{ scale: 0.9 }}
-        onClick={() => showToast({ message: 'Comments — coming soon!', type: 'info' })}
-        className="flex items-center gap-1 text-xs text-warm-gray hover:text-sky transition-colors"
+        onClick={() => showToast({ message: 'Comments — coming soon', type: 'info' })}
+        className="flex items-center gap-1 text-xs text-faint hover:text-skyblue transition-colors"
       >
         <MessageCircle size={14} /> Comment
       </motion.button>
       <motion.button
         whileTap={{ scale: 0.9 }}
-        onClick={() => showToast({ message: 'Link copied!', type: 'info' })}
-        className="flex items-center gap-1 text-xs text-warm-gray hover:text-mint transition-colors"
+        onClick={() => showToast({ message: 'Link copied', type: 'info' })}
+        className="flex items-center gap-1 text-xs text-faint hover:text-mint transition-colors"
       >
         <Share2 size={14} /> Share
       </motion.button>
@@ -293,35 +293,36 @@ export default function FriendsPage() {
   )
 
   return (
-    <div className="min-h-screen pb-24">
-      {/* Header */}
-      <div className="px-5 pt-12 pb-3 bg-warm-white sticky top-0 z-20">
+    <div className="min-h-screen pb-32">
+      {/* header */}
+      <div className="px-5 pt-12 pb-3 sticky top-0 z-20 bg-ink/85 backdrop-blur-xl">
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-2xl font-bold text-navy">Friends</h1>
+          <h1 className="font-display text-2xl text-cream">Friends</h1>
           <motion.button
             whileTap={{ scale: 0.9 }}
             onClick={() => setAddFriendOpen(true)}
-            className="flex items-center gap-1.5 px-4 py-2 bg-coral text-white rounded-xl text-sm font-medium shadow-lg shadow-coral/20"
+            className="flex items-center gap-1.5 px-4 py-2 btn-gold rounded-xl text-sm font-semibold"
           >
-            <UserPlus size={16} />
+            <UserPlus size={15} />
             Add Friend
           </motion.button>
         </div>
 
-        {/* Tabs */}
-        <div className="flex gap-1 p-1 bg-sand/30 rounded-xl">
+        {/* tabs */}
+        <div className="flex gap-1 p-1 bg-ink-3/70 rounded-2xl hairline">
           {['feed', 'friends'].map(t => (
             <button
               key={t}
               onClick={() => setTab(t)}
-              className={`flex-1 relative py-2 rounded-lg text-sm font-medium transition-colors ${
-                tab === t ? 'text-navy' : 'text-warm-gray'
+              className={`flex-1 relative py-2 rounded-xl text-sm font-medium transition-colors ${
+                tab === t ? 'text-gold-soft' : 'text-faint'
               }`}
             >
               {tab === t && (
                 <motion.div
                   layoutId="friends-tab"
-                  className="absolute inset-0 bg-white rounded-lg shadow-sm"
+                  className="absolute inset-0 bg-gold/10 rounded-xl"
+                  style={{ boxShadow: 'inset 0 0 0 1px rgba(239,179,92,0.25)' }}
                   transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                 />
               )}
@@ -340,36 +341,39 @@ export default function FriendsPage() {
           </div>
         ) : (
           <div key="friends" className="px-5 mt-4">
-            {/* Search friends */}
+            {/* search friends */}
             <div className="relative mb-4">
-              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-warm-gray" />
+              <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-faint" />
               <input
                 type="text"
                 placeholder="Search friends..."
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
-                className="w-full pl-11 pr-4 py-2.5 rounded-xl bg-sand/30 text-navy text-sm placeholder:text-warm-gray outline-none focus:ring-2 focus:ring-coral/30"
+                className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-ink-3/70 hairline text-cream text-sm placeholder:text-faint outline-none focus:border-gold/30 transition-colors"
               />
             </div>
 
-            {/* Suggested */}
+            {/* suggested */}
             <div className="mb-6">
-              <h3 className="font-semibold text-navy text-sm mb-3">Suggested for you</h3>
+              <h3 className="font-display text-cream text-lg mb-3">Suggested for you</h3>
               <div className="flex gap-3 overflow-x-auto no-scrollbar">
-                {[1, 2, 3].map(i => (
+                {suggestedUsers.map(user => (
                   <motion.div
-                    key={i}
+                    key={user.id}
                     whileHover={{ y: -2 }}
-                    className="flex-shrink-0 w-32 bg-white rounded-2xl p-4 border border-sand/40 text-center"
+                    className="flex-shrink-0 w-32 bg-ink-2 rounded-3xl p-4 hairline shadow-depth text-center"
                   >
-                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-coral to-peach mx-auto mb-2 flex items-center justify-center text-white text-lg font-bold">
-                      {String.fromCharCode(64 + i)}
+                    <div
+                      className="w-14 h-14 rounded-full mx-auto mb-2 flex items-center justify-center text-lg font-bold"
+                      style={{ background: `${user.color}22`, color: user.color, boxShadow: `inset 0 0 0 1px ${user.color}50` }}
+                    >
+                      {user.initials}
                     </div>
-                    <p className="text-xs font-semibold text-navy">New Friend</p>
+                    <p className="text-xs font-semibold text-cream truncate">{user.name}</p>
                     <motion.button
                       whileTap={{ scale: 0.9 }}
-                      onClick={() => showToast({ message: 'Friend request sent!' })}
-                      className="mt-2 px-3 py-1 bg-coral/10 text-coral rounded-lg text-xs font-semibold w-full"
+                      onClick={() => showToast({ message: `Friend request sent to ${user.name} ✦` })}
+                      className="mt-2 px-3 py-1.5 bg-gold/10 border border-gold/20 text-gold-soft rounded-lg text-xs font-semibold w-full"
                     >
                       Follow
                     </motion.button>
@@ -378,11 +382,11 @@ export default function FriendsPage() {
               </div>
             </div>
 
-            {/* Friends list */}
-            <h3 className="font-semibold text-navy text-sm mb-3">Your Friends ({filteredFriends.length})</h3>
+            {/* friends list */}
+            <h3 className="font-display text-cream text-lg mb-3">Your friends ({filteredFriends.length})</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {filteredFriends.map((friend, i) => (
-                <FriendCard key={friend.id} friend={friend} index={i} />
+              {filteredFriends.map(friend => (
+                <FriendCard key={friend.id} friend={friend} />
               ))}
             </div>
           </div>
