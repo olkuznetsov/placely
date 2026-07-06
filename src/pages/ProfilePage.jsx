@@ -224,7 +224,7 @@ export default function ProfilePage({ isSaved, visitedIds }) {
       </div>
 
       <p className="text-center text-faint text-xs mt-7 mb-4 font-display italic">
-        Charting the night since {userProfile.joinDate}
+        Charting places since {userProfile.joinDate}
       </p>
 
       <SettingsSheet isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} />

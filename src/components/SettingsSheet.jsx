@@ -1,11 +1,10 @@
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Bell, Moon, Shield, HelpCircle, LogOut, ChevronRight, Smartphone } from 'lucide-react'
+import { X, Bell, Sunset, Shield, HelpCircle, LogOut, ChevronRight, Smartphone } from 'lucide-react'
 import { useState } from 'react'
 import { useToast } from './Toast'
 
 export default function SettingsSheet({ isOpen, onClose }) {
   const showToast = useToast()
-  const [nightMode] = useState(true)
   const [notifications, setNotifications] = useState(true)
 
   function handle(label) {
@@ -69,19 +68,21 @@ export default function SettingsSheet({ isOpen, onClose }) {
                   </motion.button>
                 </div>
 
-                {/* Night mode — always on, it's the whole point */}
-                <div className="flex items-center gap-3 p-4 bg-ink-3/60 rounded-2xl hairline">
-                  <div className="w-10 h-10 rounded-xl bg-violet/10 flex items-center justify-center">
-                    <Moon size={18} className="text-violet" />
+                {/* Appearance */}
+                <motion.button
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => showToast({ message: 'Light theme — coming soon', type: 'info' })}
+                  className="w-full flex items-center gap-3 p-4 bg-ink-3/60 rounded-2xl hairline"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-gold/10 flex items-center justify-center">
+                    <Sunset size={18} className="text-gold" />
                   </div>
-                  <div className="flex-1">
-                    <p className="font-semibold text-cream text-sm">Night Atlas mode</p>
-                    <p className="text-faint text-xs">Always on — stars only come out at night</p>
+                  <div className="flex-1 text-left">
+                    <p className="font-semibold text-cream text-sm">Appearance</p>
+                    <p className="text-faint text-xs">Dusk (dark) — light theme on the roadmap</p>
                   </div>
-                  <div className="w-12 h-6 rounded-full p-0.5 bg-violet/60 opacity-70">
-                    <div className="w-5 h-5 rounded-full bg-ink translate-x-6" />
-                  </div>
-                </div>
+                  <ChevronRight size={16} className="text-faint" />
+                </motion.button>
 
                 {[
                   { icon: Shield, label: 'Privacy & Data', cls: 'text-skyblue', bg: 'bg-skyblue/10' },

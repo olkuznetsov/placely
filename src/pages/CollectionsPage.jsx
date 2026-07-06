@@ -139,7 +139,7 @@ export default function CollectionsPage({ isSaved, toggleSave, isVisited, toggle
                   New
                 </motion.button>
               </div>
-              <p className="text-faint text-sm mt-1">Constellations of your favorite spots</p>
+              <p className="text-faint text-sm mt-1">Spots you love, curated with friends</p>
             </motion.div>
           )}
         </AnimatePresence>
@@ -224,7 +224,7 @@ export default function CollectionsPage({ isSaved, toggleSave, isVisited, toggle
                 <Plus size={22} className="text-gold" />
               </div>
               <p className="font-display text-cream text-lg">New collection</p>
-              <p className="text-faint text-sm mt-1">Start a new constellation</p>
+              <p className="text-faint text-sm mt-1">Group spots you love with friends</p>
             </motion.div>
           </motion.div>
         )}

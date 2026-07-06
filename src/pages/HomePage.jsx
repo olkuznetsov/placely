@@ -4,7 +4,7 @@ import { Search, Bell, MapPin, Flame, ChevronRight } from 'lucide-react'
 import PlaceCard from '../components/PlaceCard'
 import CategoryFilter from '../components/CategoryFilter'
 import PlaceDetail from '../components/PlaceDetail'
-import { places, activityFeed, userProfile, categories } from '../data/mockData'
+import { places, activityFeed, userProfile, categories, friends } from '../data/mockData'
 
 // deterministic star field — same sky every night
 const STARS = Array.from({ length: 46 }, (_, i) => {
@@ -55,10 +55,6 @@ function HeroScene() {
             }}
           />
         ))}
-        {/* moon */}
-        <div className="absolute top-32 right-9 w-14 h-14 rounded-full bg-gradient-to-br from-[#FFF7E0] to-[#F3D9A4] opacity-90"
-          style={{ boxShadow: '0 0 50px 14px rgba(243, 217, 164, 0.28), 0 0 110px 40px rgba(243, 217, 164, 0.10)' }}
-        />
       </motion.div>
 
       {/* aurora */}
@@ -73,7 +69,12 @@ function HeroScene() {
 
       {/* back ridge */}
       <motion.div style={{ y: backRidgeY }} className="absolute inset-x-0 bottom-6">
-        <svg viewBox="0 0 375 140" preserveAspectRatio="none" className="w-full h-36 block">
+        {/* golden-hour glow sinking behind the peaks */}
+        <div
+          className="absolute -top-28 left-1/2 -translate-x-1/2 w-[480px] h-64 pointer-events-none"
+          style={{ background: 'radial-gradient(ellipse at center 85%, rgba(239,179,92,0.34) 0%, rgba(239,179,92,0.10) 45%, transparent 72%)', filter: 'blur(4px)' }}
+        />
+        <svg viewBox="0 0 375 140" preserveAspectRatio="none" className="w-full h-36 block relative">
           <path
             d="M0,140 L0,86 L46,44 L92,80 L138,30 L186,74 L232,48 L286,88 L330,58 L375,76 L375,140 Z"
             fill="#161B33"
@@ -125,7 +126,7 @@ function HeroScene() {
         </div>
 
         <p className="text-gold-soft/80 text-[11px] font-semibold tracking-[0.28em] uppercase mb-2">
-          Your night atlas
+          Your places wishlist
         </p>
         <h1 className="font-display text-cream text-[2.6rem] leading-[1.08]">
           Where to next,{' '}
@@ -133,6 +134,23 @@ function HeroScene() {
             {userProfile.name.split(' ')[0]}
           </em>?
         </h1>
+
+        {/* friends strip — this is a social app, say it up front */}
+        <div className="flex items-center gap-2.5 mt-4">
+          <div className="flex -space-x-2.5">
+            {friends.slice(0, 3).map(f => (
+              <img
+                key={f.id}
+                src={f.avatar}
+                alt={f.name}
+                className="w-7 h-7 rounded-full object-cover ring-2 ring-[#0D1124]"
+              />
+            ))}
+          </div>
+          <p className="text-muted text-xs">
+            <span className="text-cream font-semibold">{friends.length} friends</span> are exploring with you
+          </p>
+        </div>
       </motion.div>
     </div>
   )
@@ -229,7 +247,7 @@ export default function HomePage({ isSaved, toggleSave, isVisited, toggleVisited
       {/* friend activity */}
       <div className="mt-8">
         <div className="flex items-center justify-between px-5 mb-3">
-          <h2 className="font-display text-cream text-xl">Friends are dreaming</h2>
+          <h2 className="font-display text-cream text-xl">Friends are saving</h2>
           <button className="text-gold-soft text-xs font-semibold flex items-center gap-0.5 tracking-wide">
             SEE ALL <ChevronRight size={13} />
           </button>
@@ -288,7 +306,7 @@ export default function HomePage({ isSaved, toggleSave, isVisited, toggleVisited
         <div className="flex items-baseline justify-between mb-4">
           <h2 className="font-display text-cream text-xl">
             {category === 'all'
-              ? <>Tonight&rsquo;s <em className="text-gold-gradient">picks</em></>
+              ? <>Trending with <em className="text-gold-gradient">friends</em></>
               : categories.find(c => c.id === category)?.label}
           </h2>
           <span className="text-xs text-faint">{filtered.length} places</span>

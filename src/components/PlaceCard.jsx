@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion'
 import { Heart, Star, MapPin } from 'lucide-react'
 import TiltCard from './TiltCard'
-import { categoryMeta } from '../data/mockData'
+import { categoryMeta, friends } from '../data/mockData'
 import { categoryIcons } from '../lib/icons'
 import { useToast } from './Toast'
 
@@ -9,6 +9,7 @@ export default function PlaceCard({ place, index = 0, isSaved, onToggleSave, onS
   const showToast = useToast()
   const meta = categoryMeta[place.category]
   const CatIcon = meta ? categoryIcons[meta.icon] : MapPin
+  const savers = friends.filter(f => place.savedBy?.includes(f.id)).slice(0, 3)
 
   return (
     <motion.div
@@ -75,10 +76,24 @@ export default function PlaceCard({ place, index = 0, isSaved, onToggleSave, onS
               <MapPin size={11} className="shrink-0" />
               <span className="truncate">{place.address}</span>
             </div>
-            {place.savedBy?.length > 0 && (
-              <span className="text-[11px] text-muted shrink-0 ml-2">
-                ♥ {place.savedBy.length} friends
-              </span>
+            {savers.length > 0 && (
+              <div className="flex items-center shrink-0 ml-2">
+                <div className="flex -space-x-2">
+                  {savers.map(f => (
+                    <img
+                      key={f.id}
+                      src={f.avatar}
+                      alt={f.name}
+                      className="w-5 h-5 rounded-full object-cover ring-2 ring-ink/70"
+                    />
+                  ))}
+                </div>
+                {place.savedBy.length > savers.length && (
+                  <span className="text-[10px] text-muted ml-1.5">
+                    +{place.savedBy.length - savers.length}
+                  </span>
+                )}
+              </div>
             )}
           </div>
         </div>

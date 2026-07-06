@@ -71,7 +71,7 @@ export default function ExplorePage({ isSaved, toggleSave, isVisited, toggleVisi
             <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-faint" />
             <input
               type="text"
-              placeholder="Find a place in the dark..."
+              placeholder="Search places nearby..."
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               className="w-full pl-11 pr-4 py-2.5 rounded-2xl bg-ink-3/70 hairline text-cream text-sm placeholder:text-faint outline-none focus:border-gold/30 transition-colors"
@@ -117,8 +117,8 @@ export default function ExplorePage({ isSaved, toggleSave, isVisited, toggleVisi
               <div className="absolute bottom-4 left-4 right-4 z-[1000]">
                 <div className="glass-panel rounded-2xl p-3 flex items-center justify-between shadow-pop">
                   <div>
-                    <p className="text-cream font-semibold text-sm">{filtered.length} lights on the map</p>
-                    <p className="text-faint text-xs">Tap a glow for details</p>
+                    <p className="text-cream font-semibold text-sm">{filtered.length} places on the map</p>
+                    <p className="text-faint text-xs">Tap a pin for details</p>
                   </div>
                   <motion.button
                     whileTap={{ scale: 0.9 }}
