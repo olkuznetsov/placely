@@ -58,35 +58,46 @@ function HeroScene() {
     hx.set(((e.clientX - r.left) / r.width - 0.5) * 2)
   }
 
-  // gyroscope drives the same parallax on phones: tilt the device, the
-  // scene leans with you. iOS needs a user-gesture permission request.
+  // gyroscope drives the same parallax on phones: tilt the device and the
+  // scene leans with you. Calibrated to the resting grip — the first reading
+  // becomes "neutral", so it works however the phone is held.
   useEffect(() => {
     if (typeof DeviceOrientationEvent === 'undefined') return undefined
 
+    let base = null
     const onOrient = (e) => {
       if (e.gamma == null) return
-      // gamma: left/right tilt in degrees; ±25° maps to full parallax
-      hx.set(Math.max(-1, Math.min(1, e.gamma / 25)))
+      if (base === null) base = e.gamma
+      // ±15° of roll away from your resting grip = full parallax
+      hx.set(Math.max(-1, Math.min(1, (e.gamma - base) / 15)))
     }
     const enable = () => window.addEventListener('deviceorientation', onOrient)
 
-    let gestureHandler
+    const stopAsking = () => {
+      window.removeEventListener('click', askOnGesture)
+      window.removeEventListener('touchend', askOnGesture)
+    }
+    // iOS 13+: the motion prompt only fires from a genuine tap. Scrolls don't
+    // count, so keep asking on every gesture until iOS says granted/denied.
+    const askOnGesture = () => {
+      DeviceOrientationEvent.requestPermission()
+        .then(state => {
+          if (state === 'granted') { stopAsking(); enable() }
+          else if (state === 'denied') stopAsking()
+        })
+        .catch(() => { /* gesture didn't qualify — retry on the next tap */ })
+    }
+
     if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-      // iOS 13+: ask on the first touch, which counts as a user gesture
-      gestureHandler = () => {
-        window.removeEventListener('touchend', gestureHandler)
-        DeviceOrientationEvent.requestPermission()
-          .then(state => { if (state === 'granted') enable() })
-          .catch(() => {})
-      }
-      window.addEventListener('touchend', gestureHandler)
+      window.addEventListener('click', askOnGesture)
+      window.addEventListener('touchend', askOnGesture)
     } else {
-      enable()
+      enable() // Android & older iOS: no permission needed
     }
 
     return () => {
       window.removeEventListener('deviceorientation', onOrient)
-      if (gestureHandler) window.removeEventListener('touchend', gestureHandler)
+      stopAsking()
     }
   }, [hx])
 
