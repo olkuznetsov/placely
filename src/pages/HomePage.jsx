@@ -1,11 +1,13 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { motion, useScroll, useTransform, useMotionValue, useSpring } from 'framer-motion'
 import { Search, Bell, MapPin, Flame, ChevronRight } from 'lucide-react'
 import PlaceCard from '../components/PlaceCard'
 import CategoryFilter from '../components/CategoryFilter'
 import PlaceDetail from '../components/PlaceDetail'
 import WishDeck from '../components/WishDeck'
-import { places, activityFeed, userProfile, categories, friends } from '../data/mockData'
+import { places, activityFeed, userProfile, categoryMeta, friends } from '../data/mockData'
+import { useLang } from '../lib/i18n'
 
 // deterministic star field — same sky every night
 const STARS = Array.from({ length: 46 }, (_, i) => {
@@ -30,6 +32,8 @@ const PINS = [
 ]
 
 function HeroScene() {
+  const { t } = useLang()
+  const navigate = useNavigate()
   const { scrollY } = useScroll()
   // farther layers drift down more = appear slower than the scroll
   const skyY = useTransform(scrollY, [0, 420], [0, 150])
@@ -40,7 +44,7 @@ function HeroScene() {
   const contentOpacity = useTransform(scrollY, [0, 260], [1, 0])
   const contentY = useTransform(scrollY, [0, 300], [0, -36])
 
-  // pointer parallax — the scene pans against the cursor, near layers most
+  // pointer/gyro parallax — the scene pans against the movement, near layers most
   const hx = useMotionValue(0)
   const shx = useSpring(hx, { stiffness: 60, damping: 18 })
   const skyX = useTransform(shx, v => v * -4)
@@ -53,6 +57,38 @@ function HeroScene() {
     const r = e.currentTarget.getBoundingClientRect()
     hx.set(((e.clientX - r.left) / r.width - 0.5) * 2)
   }
+
+  // gyroscope drives the same parallax on phones: tilt the device, the
+  // scene leans with you. iOS needs a user-gesture permission request.
+  useEffect(() => {
+    if (typeof DeviceOrientationEvent === 'undefined') return undefined
+
+    const onOrient = (e) => {
+      if (e.gamma == null) return
+      // gamma: left/right tilt in degrees; ±25° maps to full parallax
+      hx.set(Math.max(-1, Math.min(1, e.gamma / 25)))
+    }
+    const enable = () => window.addEventListener('deviceorientation', onOrient)
+
+    let gestureHandler
+    if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+      // iOS 13+: ask on the first touch, which counts as a user gesture
+      gestureHandler = () => {
+        window.removeEventListener('touchend', gestureHandler)
+        DeviceOrientationEvent.requestPermission()
+          .then(state => { if (state === 'granted') enable() })
+          .catch(() => {})
+      }
+      window.addEventListener('touchend', gestureHandler)
+    } else {
+      enable()
+    }
+
+    return () => {
+      window.removeEventListener('deviceorientation', onOrient)
+      if (gestureHandler) window.removeEventListener('touchend', gestureHandler)
+    }
+  }, [hx])
 
   return (
     <div
@@ -137,6 +173,7 @@ function HeroScene() {
           <span className="font-display italic text-2xl text-gold-gradient">Placely</span>
           <motion.button
             whileTap={{ scale: 0.9 }}
+            aria-label="Notifications"
             className="relative w-9 h-9 rounded-full glass-chip flex items-center justify-center"
           >
             <Bell size={17} className="text-cream/90" />
@@ -145,17 +182,20 @@ function HeroScene() {
         </div>
 
         <p className="text-gold-soft/80 text-[11px] font-semibold tracking-[0.28em] uppercase mb-2">
-          Your places wishlist
+          {t('home.eyebrow')}
         </p>
         <h1 className="font-display text-cream text-[2.6rem] leading-[1.08]">
-          Where to next,{' '}
+          {t('home.greeting')}{' '}
           <em className="text-gold-gradient not-italic font-display italic">
             {userProfile.name.split(' ')[0]}
           </em>?
         </h1>
 
         {/* friends strip — this is a social app, say it up front */}
-        <div className="flex items-center gap-2.5 mt-4">
+        <button
+          onClick={() => navigate('/friends')}
+          className="flex items-center gap-2.5 mt-4 text-left w-fit"
+        >
           <div className="flex -space-x-2.5">
             {friends.slice(0, 3).map(f => (
               <img
@@ -167,15 +207,17 @@ function HeroScene() {
             ))}
           </div>
           <p className="text-muted text-xs">
-            <span className="text-cream font-semibold">{friends.length} friends</span> are exploring with you
+            <span className="text-cream font-semibold">{t('home.friendsCount', { n: friends.length })}</span>{' '}
+            {t('home.friendsExploring')}
           </p>
-        </div>
+        </button>
       </motion.div>
     </div>
   )
 }
 
 function JourneyStrip({ savedCount, visitedCount }) {
+  const { t } = useLang()
   const pct = savedCount > 0 ? Math.min(visitedCount / savedCount, 1) : 0
   const R = 24
   const C = 2 * Math.PI * R
@@ -205,11 +247,11 @@ function JourneyStrip({ savedCount, visitedCount }) {
       </div>
 
       <div className="flex-1 min-w-0">
-        <p className="font-display text-cream text-lg leading-tight">Your journey</p>
+        <p className="font-display text-cream text-lg leading-tight">{t('home.journey')}</p>
         <p className="text-muted text-xs mt-0.5">
-          <span className="text-gold-soft font-semibold">{savedCount} pinned</span>
+          <span className="text-gold-soft font-semibold">{t('home.pinned', { n: savedCount })}</span>
           {' · '}
-          <span className="text-mint font-semibold">{visitedCount} lived</span>
+          <span className="text-mint font-semibold">{t('home.lived', { n: visitedCount })}</span>
         </p>
       </div>
 
@@ -221,17 +263,21 @@ function JourneyStrip({ savedCount, visitedCount }) {
   )
 }
 
-export default function HomePage({ isSaved, toggleSave, isVisited, toggleVisited, savedIds, visitedIds }) {
+export default function HomePage({ isSaved, toggleSave, isVisited, toggleVisited, savedIds, visitedIds, markSoon, isSoon }) {
+  const { t, pick } = useLang()
+  const navigate = useNavigate()
   const [category, setCategory] = useState('all')
   const [selectedPlace, setSelectedPlace] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
 
   const filtered = useMemo(() =>
     places.filter(p => {
+      const q = searchQuery.toLowerCase()
       const matchCategory = category === 'all' || p.category === category
-      const matchSearch = !searchQuery ||
-        p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.tags.some(t => t.toLowerCase().includes(searchQuery.toLowerCase()))
+      const matchSearch = !q ||
+        p.name.toLowerCase().includes(q) ||
+        (p.name_uk || '').toLowerCase().includes(q) ||
+        p.tags.some(tg => tg.toLowerCase().includes(q))
       return matchCategory && matchSearch
     }),
     [category, searchQuery]
@@ -243,6 +289,9 @@ export default function HomePage({ isSaved, toggleSave, isVisited, toggleVisited
     [savedIds, visitedIds]
   )
 
+  // when the user is actively filtering, get results in front of their eyes
+  const isFiltering = searchQuery.trim() !== '' || category !== 'all'
+
   return (
     <div className="min-h-screen pb-32">
       <HeroScene />
@@ -253,7 +302,8 @@ export default function HomePage({ isSaved, toggleSave, isVisited, toggleVisited
           <Search size={17} className="absolute left-4 top-1/2 -translate-y-1/2 text-faint" />
           <input
             type="text"
-            placeholder="Search places, cravings, or tags..."
+            placeholder={t('home.search')}
+            aria-label={t('home.search')}
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             className="w-full pl-11 pr-4 py-3.5 rounded-2xl glass-panel shadow-pop text-cream text-sm placeholder:text-faint outline-none focus:border-gold/30 transition-colors"
@@ -265,89 +315,98 @@ export default function HomePage({ isSaved, toggleSave, isVisited, toggleVisited
         <CategoryFilter active={category} onChange={setCategory} />
       </div>
 
-      <div className="mt-2">
-        <JourneyStrip savedCount={savedIds.size} visitedCount={visitedIds.size} />
-      </div>
-
-      {/* wishlist deck — swipeable 3D stack */}
-      {wishlist.length > 0 && (
-        <div className="mt-8">
-          <div className="flex items-baseline justify-between px-5 mb-3">
-            <h2 className="font-display text-cream text-xl">
-              Up <em className="text-gold-gradient">next</em>
-            </h2>
-            <span className="text-xs text-faint">{wishlist.length} on your wishlist</span>
+      {!isFiltering && (
+        <>
+          <div className="mt-2">
+            <JourneyStrip savedCount={savedIds.size} visitedCount={visitedIds.size} />
           </div>
-          <WishDeck places={wishlist} onOpen={setSelectedPlace} />
-        </div>
+
+          {/* wishlist deck — swipeable 3D stack */}
+          {wishlist.length > 0 && (
+            <div className="mt-8">
+              <div className="flex items-baseline justify-between px-5 mb-3">
+                <h2 className="font-display text-cream text-xl">
+                  {t('home.upNext')} <em className="text-gold-gradient">{t('home.upNextAccent')}</em>
+                </h2>
+                <span className="text-xs text-faint">{t('home.onWishlist', { n: wishlist.length })}</span>
+              </div>
+              <WishDeck places={wishlist} onOpen={setSelectedPlace} markSoon={markSoon} isSoon={isSoon} />
+            </div>
+          )}
+
+          {/* friend activity */}
+          <div className="mt-8">
+            <div className="flex items-center justify-between px-5 mb-3">
+              <h2 className="font-display text-cream text-xl">{t('home.friendsSaving')}</h2>
+              <button
+                onClick={() => navigate('/friends')}
+                className="text-gold-soft text-xs font-semibold flex items-center gap-0.5 tracking-wide"
+              >
+                {t('home.seeAll')} <ChevronRight size={13} />
+              </button>
+            </div>
+            <div className="flex gap-3 overflow-x-auto no-scrollbar px-5">
+              {activityFeed.slice(0, 4).map(activity => (
+                <div
+                  key={activity.id}
+                  className="flex-shrink-0 w-72 bg-ink-2 rounded-3xl p-4 hairline shadow-depth"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <img
+                      src={activity.user.avatar}
+                      alt={activity.user.name}
+                      className="w-9 h-9 rounded-full object-cover ring-1 ring-gold/30"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[13px] text-cream">
+                        <span className="font-semibold">{activity.user.name}</span>{' '}
+                        <span className="text-faint">
+                          {activity.action === 'saved' && t('feed.saved')}
+                          {activity.action === 'visited' && t('feed.visited')}
+                          {activity.action === 'reviewed' && t('feed.reviewed')}
+                          {activity.action === 'created_collection' && t('feed.created')}
+                        </span>
+                      </p>
+                      {activity.place && (
+                        <p className="text-xs text-gold-soft font-medium truncate">{pick(activity.place, 'name')}</p>
+                      )}
+                      {activity.collectionName && (
+                        <p className="text-xs text-violet font-medium">{pick(activity, 'collectionName')}</p>
+                      )}
+                    </div>
+                    <span className="text-[10px] text-faint whitespace-nowrap">{pick(activity, 'time')}</span>
+                  </div>
+                  {activity.note && (
+                    <p className="text-xs text-muted mt-2.5 line-clamp-2 leading-relaxed">{pick(activity, 'note')}</p>
+                  )}
+                  {activity.photo && (
+                    <img src={activity.photo} alt="" className="w-full h-24 object-cover rounded-2xl mt-2.5" />
+                  )}
+                  {activity.rating && (
+                    <div className="flex gap-0.5 mt-2">
+                      {Array.from({ length: activity.rating }).map((_, i) => (
+                        <span key={i} className="text-gold text-xs">★</span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </>
       )}
 
-      {/* friend activity */}
-      <div className="mt-8">
-        <div className="flex items-center justify-between px-5 mb-3">
-          <h2 className="font-display text-cream text-xl">Friends are saving</h2>
-          <button className="text-gold-soft text-xs font-semibold flex items-center gap-0.5 tracking-wide">
-            SEE ALL <ChevronRight size={13} />
-          </button>
-        </div>
-        <div className="flex gap-3 overflow-x-auto no-scrollbar px-5">
-          {activityFeed.slice(0, 4).map(activity => (
-            <div
-              key={activity.id}
-              className="flex-shrink-0 w-72 bg-ink-2 rounded-3xl p-4 hairline shadow-depth"
-            >
-              <div className="flex items-center gap-2.5">
-                <img
-                  src={activity.user.avatar}
-                  alt={activity.user.name}
-                  className="w-9 h-9 rounded-full object-cover ring-1 ring-gold/30"
-                />
-                <div className="flex-1 min-w-0">
-                  <p className="text-[13px] text-cream">
-                    <span className="font-semibold">{activity.user.name}</span>{' '}
-                    <span className="text-faint">
-                      {activity.action === 'saved' && 'pinned'}
-                      {activity.action === 'visited' && 'visited'}
-                      {activity.action === 'reviewed' && 'reviewed'}
-                      {activity.action === 'created_collection' && 'created'}
-                    </span>
-                  </p>
-                  {activity.place && (
-                    <p className="text-xs text-gold-soft font-medium truncate">{activity.place.name}</p>
-                  )}
-                  {activity.collectionName && (
-                    <p className="text-xs text-violet font-medium">{activity.collectionName}</p>
-                  )}
-                </div>
-                <span className="text-[10px] text-faint whitespace-nowrap">{activity.time}</span>
-              </div>
-              {activity.note && (
-                <p className="text-xs text-muted mt-2.5 line-clamp-2 leading-relaxed">{activity.note}</p>
-              )}
-              {activity.photo && (
-                <img src={activity.photo} alt="" className="w-full h-24 object-cover rounded-2xl mt-2.5" />
-              )}
-              {activity.rating && (
-                <div className="flex gap-0.5 mt-2">
-                  {Array.from({ length: activity.rating }).map((_, i) => (
-                    <span key={i} className="text-gold text-xs">★</span>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-
       {/* picks */}
-      <div className="mt-9 px-5">
+      <div className={`px-5 ${isFiltering ? 'mt-4' : 'mt-9'}`}>
         <div className="flex items-baseline justify-between mb-4">
           <h2 className="font-display text-cream text-xl">
-            {category === 'all'
-              ? <>Trending with <em className="text-gold-gradient">friends</em></>
-              : categories.find(c => c.id === category)?.label}
+            {searchQuery.trim()
+              ? t('home.results')
+              : category === 'all'
+                ? <>{t('home.trending')} <em className="text-gold-gradient">{t('home.trendingAccent')}</em></>
+                : pick(categoryMeta[category], 'label')}
           </h2>
-          <span className="text-xs text-faint">{filtered.length} places</span>
+          <span className="text-xs text-faint">{t('home.places', { n: filtered.length })}</span>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {filtered.map((place, i) => (
@@ -364,8 +423,8 @@ export default function HomePage({ isSaved, toggleSave, isVisited, toggleVisited
         {filtered.length === 0 && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-16">
             <MapPin size={28} className="mx-auto text-faint mb-3" />
-            <p className="font-display text-cream text-lg">Uncharted territory</p>
-            <p className="text-faint text-sm mt-1">Try a different search or category</p>
+            <p className="font-display text-cream text-lg">{t('home.emptyTitle')}</p>
+            <p className="text-faint text-sm mt-1">{t('home.emptySub')}</p>
           </motion.div>
         )}
       </div>

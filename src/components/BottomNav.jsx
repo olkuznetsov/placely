@@ -1,25 +1,28 @@
 import { NavLink } from 'react-router-dom'
 import { Home, Compass, FolderHeart, Users, User } from 'lucide-react'
 import { motion } from 'framer-motion'
+import { useLang } from '../lib/i18n'
 
 const navItems = [
-  { to: '/', icon: Home, label: 'Home' },
-  { to: '/explore', icon: Compass, label: 'Explore' },
-  { to: '/collections', icon: FolderHeart, label: 'Saved' },
-  { to: '/friends', icon: Users, label: 'Friends' },
-  { to: '/profile', icon: User, label: 'Profile' },
+  { to: '/', icon: Home, key: 'nav.home' },
+  { to: '/explore', icon: Compass, key: 'nav.explore' },
+  { to: '/collections', icon: FolderHeart, key: 'nav.saved' },
+  { to: '/friends', icon: Users, key: 'nav.friends' },
+  { to: '/profile', icon: User, key: 'nav.profile' },
 ]
 
 export default function BottomNav() {
+  const { t } = useLang()
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 pointer-events-none pb-[max(env(safe-area-inset-bottom),0.75rem)] px-5">
       <div className="pointer-events-auto max-w-md mx-auto glass-panel shadow-pop rounded-[26px] flex items-center justify-around px-2 py-2">
-        {navItems.map(({ to, icon: Icon, label }) => (
+        {navItems.map(({ to, icon: Icon, key }) => (
           <NavLink
             key={to}
             to={to}
             end={to === '/'}
-            className="relative flex flex-col items-center gap-0.5 py-1.5 px-3.5 rounded-2xl"
+            aria-label={t(key)}
+            className="relative flex flex-col items-center gap-0.5 py-1.5 px-3 rounded-2xl"
           >
             {({ isActive }) => (
               <>
@@ -41,7 +44,7 @@ export default function BottomNav() {
                 <span className={`relative z-10 text-[9.5px] font-medium tracking-wide transition-colors duration-200 ${
                   isActive ? 'text-gold-soft' : 'text-faint'
                 }`}>
-                  {label}
+                  {t(key)}
                 </span>
               </>
             )}

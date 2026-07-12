@@ -1,16 +1,20 @@
 import { motion } from 'framer-motion'
 import { categories } from '../data/mockData'
 import { categoryIcons } from '../lib/icons'
+import { useLang } from '../lib/i18n'
 
 export default function CategoryFilter({ active, onChange }) {
+  const { pick } = useLang()
   return (
-    <div className="flex gap-2 overflow-x-auto no-scrollbar px-5 py-3">
+    <div className="flex gap-2 overflow-x-auto no-scrollbar px-5 py-3" role="tablist">
       {categories.map((cat) => {
         const Icon = categoryIcons[cat.icon]
         const isActive = active === cat.id
         return (
           <motion.button
             key={cat.id}
+            role="tab"
+            aria-selected={isActive}
             whileTap={{ scale: 0.92 }}
             onClick={() => onChange(cat.id)}
             className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full whitespace-nowrap text-[13px] font-medium transition-all duration-200 border ${
@@ -24,7 +28,7 @@ export default function CategoryFilter({ active, onChange }) {
             } : undefined}
           >
             {Icon && <Icon size={14} style={{ color: isActive ? cat.color : undefined }} className={isActive ? '' : 'text-faint'} />}
-            <span>{cat.label}</span>
+            <span>{pick(cat, 'label')}</span>
           </motion.button>
         )
       })}

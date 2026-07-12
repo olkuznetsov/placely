@@ -2,27 +2,32 @@
 
 **Your places wishlist — save spots you love, share them with friends, and turn "we should go there sometime" into "we went".**
 
+**Твій список бажаних місць — зберігай улюблені місця, ділись із друзями, і перетворюй «колись сходимо» на «ми там були».**
+
 Placely is a small social network built around one idea: everyone keeps a mental list of places they want to try — cafés, viewpoints, speakeasies, bakeries — and those lists are better together. Pin a place, group pins into shared collections, watch what friends are saving, and mark places as *lived* when you finally go.
 
 > 📱 Mobile-first PWA. Open it on your phone, add to home screen, and it feels native.
+> 🇺🇦 Fully bilingual (Ukrainian / English). Ukrainian loads by default for `uk` locales — as Ukraine's language law requires for consumer apps. Prices show ₴-style ranges, hours use 24-hour time, and the demo dataset lives in Kyiv.
 
 ## Features
 
 - **Wishlist pins** — save any place with one tap; saves persist locally
 - **Lived tracking** — mark places you've actually visited; a gold journey ring shows how much of your wishlist you've lived
+- **Wish deck** — swipeable 3D card stack of your unvisited saves: swipe right = "going soon", left = later, tap = open
 - **Collections** — group spots into decks ("Date Night", "Coffee Crawl") and share them with friends
 - **Friend feed** — see what your circle is pinning, visiting, and reviewing
-- **Explore map** — dark map with glowing category-colored pins (Leaflet + CARTO tiles)
+- **Explore map** — dark Kyiv map with glowing category-colored pins (Leaflet + CARTO tiles)
 - **Traveler's passport** — profile with stamps (badges), streaks, and journey stats
+- **UA/EN localization** — hand-rolled i18n, Cyrillic-capable font fallbacks (Playfair Display / Manrope), ₴ price ranges, 24-hour hours
 
 ## Design — "Dusk Atlas"
 
 A dark, cinematic canvas that makes place photography glow, set at golden hour:
 
-- Multi-layer **parallax hero** — stars, drifting aurora, mountain ridges, and a sinking golden-hour glow, each moving at its own scroll rate
-- **3D tilt cards** — place cards rotate in perspective under your pointer with a moving light glare
+- Multi-layer **parallax hero** — stars, drifting aurora, mountain ridges, and a sinking golden-hour glow, each moving at its own scroll rate; the scene also pans with your cursor, and with the **gyroscope** on phones
+- **3D tilt cards** — place cards rotate in perspective under your pointer, with depth-layered content (`translateZ`) and a photo that counter-drifts inside the frame
 - **Polaroid decks** — collections fan out on hover
-- Fraunces display serif + Outfit UI type, compass-gold accents, glass surfaces, film grain
+- Fraunces display serif + Outfit UI type (Playfair Display + Manrope carry Ukrainian Cyrillic), compass-gold accents, glass surfaces, film grain
 
 ## Stack
 

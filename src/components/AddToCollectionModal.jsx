@@ -1,23 +1,32 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Plus, Check } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { collections } from '../data/mockData'
 import { useToast } from './Toast'
+import { useLang } from '../lib/i18n'
 
 export default function AddToCollectionModal({ place, isOpen, onClose }) {
   const showToast = useToast()
+  const { t, pick } = useLang()
   const [added, setAdded] = useState(new Set())
   const [newName, setNewName] = useState('')
   const [creating, setCreating] = useState(false)
 
+  // fresh state per place — checkmarks from one place shouldn't leak to another
+  useEffect(() => {
+    setAdded(new Set())
+    setCreating(false)
+    setNewName('')
+  }, [place?.id])
+
   function handleAdd(collection) {
     setAdded(prev => new Set([...prev, collection.id]))
-    showToast({ message: `Added to "${collection.name}"` })
+    showToast({ message: t('toast.addedTo', { name: pick(collection, 'name') }) })
   }
 
   function handleCreate() {
     if (!newName.trim()) return
-    showToast({ message: `Collection "${newName}" created ✦` })
+    showToast({ message: t('toast.colCreated', { name: newName }) })
     setNewName('')
     setCreating(false)
     onClose()
@@ -40,22 +49,24 @@ export default function AddToCollectionModal({ place, isOpen, onClose }) {
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
             className="fixed bottom-0 left-0 right-0 z-[90] max-w-lg mx-auto bg-ink-2 rounded-t-[28px] max-h-[70vh] overflow-y-auto hairline-t shadow-pop"
+            role="dialog"
+            aria-label={t('cm.title')}
           >
             <div className="flex justify-center py-3">
               <div className="w-10 h-1 rounded-full bg-white/20" />
             </div>
             <div className="px-5 pb-10">
               <div className="flex items-center justify-between mb-5">
-                <h2 className="font-display text-2xl text-cream">Save to collection</h2>
-                <button onClick={onClose} className="w-8 h-8 rounded-full bg-ink-3 hairline flex items-center justify-center">
+                <h2 className="font-display text-2xl text-cream">{t('cm.title')}</h2>
+                <button aria-label="Close" onClick={onClose} className="w-9 h-9 rounded-full bg-ink-3 hairline flex items-center justify-center">
                   <X size={15} className="text-muted" />
                 </button>
               </div>
 
               {place && (
                 <div className="flex items-center gap-3 mb-5 p-3 bg-ink-3/70 hairline rounded-2xl">
-                  <img src={place.image} alt={place.name} className="w-12 h-12 rounded-xl object-cover" />
-                  <p className="font-semibold text-cream text-sm">{place.name}</p>
+                  <img src={place.image} alt={pick(place, 'name')} className="w-12 h-12 rounded-xl object-cover" />
+                  <p className="font-semibold text-cream text-sm">{pick(place, 'name')}</p>
                 </div>
               )}
 
@@ -74,8 +85,8 @@ export default function AddToCollectionModal({ place, isOpen, onClose }) {
                       {col.emoji}
                     </span>
                     <div className="flex-1 text-left">
-                      <p className="font-semibold text-cream text-sm">{col.name}</p>
-                      <p className="text-faint text-xs">{col.placeIds.length} places</p>
+                      <p className="font-semibold text-cream text-sm">{pick(col, 'name')}</p>
+                      <p className="text-faint text-xs">{t('cm.places', { n: col.placeIds.length })}</p>
                     </div>
                     {added.has(col.id) ? (
                       <Check size={18} className="text-mint" />
@@ -93,7 +104,8 @@ export default function AddToCollectionModal({ place, isOpen, onClose }) {
                     value={newName}
                     onChange={e => setNewName(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && handleCreate()}
-                    placeholder="Collection name..."
+                    placeholder={t('cm.name')}
+                    aria-label={t('cm.name')}
                     className="flex-1 px-4 py-2.5 rounded-xl bg-ink-3 hairline text-cream text-sm placeholder:text-faint outline-none focus:border-gold/40 transition-colors"
                   />
                   <motion.button
@@ -101,7 +113,7 @@ export default function AddToCollectionModal({ place, isOpen, onClose }) {
                     onClick={handleCreate}
                     className="px-4 py-2.5 btn-gold rounded-xl font-semibold text-sm"
                   >
-                    Create
+                    {t('cm.create')}
                   </motion.button>
                 </div>
               ) : (
@@ -113,7 +125,7 @@ export default function AddToCollectionModal({ place, isOpen, onClose }) {
                   <div className="w-9 h-9 rounded-xl bg-gold/10 flex items-center justify-center">
                     <Plus size={18} className="text-gold" />
                   </div>
-                  <span className="font-medium text-muted text-sm">New collection</span>
+                  <span className="font-medium text-muted text-sm">{t('cm.newCollection')}</span>
                 </motion.button>
               )}
             </div>

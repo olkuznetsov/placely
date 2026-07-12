@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Search, UserPlus, MapPin, Star, Heart, MessageCircle, Share2, X, Check } from 'lucide-react'
 import { friends, activityFeed } from '../data/mockData'
 import { useToast } from '../components/Toast'
+import { useLang } from '../lib/i18n'
 
 const suggestedUsers = [
   { id: 10, name: 'Mia Park', username: '@mia.p', initials: 'M', color: '#FB7185' },
@@ -12,6 +13,7 @@ const suggestedUsers = [
 
 function AddFriendSheet({ isOpen, onClose }) {
   const showToast = useToast()
+  const { t } = useLang()
   const [query, setQuery] = useState('')
   const [sent, setSent] = useState(new Set())
 
@@ -24,7 +26,7 @@ function AddFriendSheet({ isOpen, onClose }) {
 
   function sendRequest(user) {
     setSent(prev => new Set([...prev, user.id]))
-    showToast({ message: `Friend request sent to ${user.name} ✦` })
+    showToast({ message: t('toast.requestSent', { name: user.name }) })
   }
 
   return (
@@ -46,7 +48,7 @@ function AddFriendSheet({ isOpen, onClose }) {
             </div>
             <div className="px-5 pb-10">
               <div className="flex items-center justify-between mb-5">
-                <h2 className="font-display text-2xl text-cream">Add friends</h2>
+                <h2 className="font-display text-2xl text-cream">{t('fr.addSheet')}</h2>
                 <button onClick={onClose} className="w-8 h-8 rounded-full bg-ink-3 hairline flex items-center justify-center">
                   <X size={15} className="text-muted" />
                 </button>
@@ -57,7 +59,8 @@ function AddFriendSheet({ isOpen, onClose }) {
                 <input
                   autoFocus
                   type="text"
-                  placeholder="Search by name or username..."
+                  placeholder={t('fr.searchUsers')}
+                  aria-label={t('fr.searchUsers')}
                   value={query}
                   onChange={e => setQuery(e.target.value)}
                   className="w-full pl-11 pr-4 py-3 rounded-2xl bg-ink-3 hairline text-cream text-sm placeholder:text-faint outline-none focus:border-gold/30 transition-colors"
@@ -65,7 +68,7 @@ function AddFriendSheet({ isOpen, onClose }) {
               </div>
 
               <p className="text-[10px] font-semibold text-faint uppercase tracking-widest mb-3">
-                {query.length > 1 ? 'Search results' : 'Suggested'}
+                {query.length > 1 ? t('fr.searchResults') : t('fr.suggestions')}
               </p>
 
               <div className="space-y-2">
@@ -96,12 +99,12 @@ function AddFriendSheet({ isOpen, onClose }) {
                           : 'btn-gold'
                       }`}
                     >
-                      {sent.has(user.id) ? <><Check size={14} /> Sent</> : <><UserPlus size={14} /> Add</>}
+                      {sent.has(user.id) ? <><Check size={14} /> {t('fr.sent')}</> : <><UserPlus size={14} /> {t('fr.addBtn')}</>}
                     </motion.button>
                   </motion.div>
                 ))}
                 {results.length === 0 && (
-                  <p className="text-center text-faint py-8 text-sm">No travelers found for "{query}"</p>
+                  <p className="text-center text-faint py-8 text-sm">{t('fr.noUsers', { q: query })}</p>
                 )}
               </div>
             </div>
@@ -114,6 +117,7 @@ function AddFriendSheet({ isOpen, onClose }) {
 
 function FriendCard({ friend }) {
   const showToast = useToast()
+  const { t, pick } = useLang()
   return (
     <motion.div
       whileHover={{ y: -2 }}
@@ -138,27 +142,27 @@ function FriendCard({ friend }) {
         </div>
         <motion.button
           whileTap={{ scale: 0.9 }}
-          onClick={() => showToast({ message: `${friend.name}'s atlas — coming soon`, type: 'info' })}
+          onClick={() => showToast({ message: t('toast.profileSoon', { name: friend.name }), type: 'info' })}
           className="px-3 py-1.5 bg-gold/10 text-gold-soft rounded-lg text-xs font-semibold border border-gold/20 hover:bg-gold/20 transition-colors"
         >
-          View
+          {t('fr.view')}
         </motion.button>
       </div>
 
       <div className="flex items-center gap-4 mt-3 pt-3 hairline-t">
         <div className="flex items-center gap-1.5">
           <MapPin size={12} className="text-gold" />
-          <span className="text-xs text-muted">{friend.savedCount} saved</span>
+          <span className="text-xs text-muted">{t('fr.saved', { n: friend.savedCount })}</span>
         </div>
         <div className="flex items-center gap-1.5">
           <Heart size={12} className="text-rose" />
-          <span className="text-xs text-muted">{friend.mutualPlaces} mutual</span>
+          <span className="text-xs text-muted">{t('fr.mutual', { n: friend.mutualPlaces })}</span>
         </div>
       </div>
 
       <div className="mt-2.5 bg-ink-3/60 rounded-xl px-3 py-2">
         <p className="text-xs text-muted">
-          <span className="text-faint">{friend.recentTime}:</span> {friend.recentActivity}
+          <span className="text-faint">{pick(friend, 'recentTime')}:</span> {pick(friend, 'recentActivity')}
         </p>
       </div>
     </motion.div>
@@ -166,6 +170,7 @@ function FriendCard({ friend }) {
 }
 
 function ActivityItem({ activity, index }) {
+  const { t, pick } = useLang()
   return (
     <div className="flex gap-3">
       {/* timeline */}
@@ -187,13 +192,13 @@ function ActivityItem({ activity, index }) {
             <p className="text-sm text-cream">
               <span className="font-bold">{activity.user.name}</span>{' '}
               <span className="text-faint">
-                {activity.action === 'saved' && 'pinned a place'}
-                {activity.action === 'visited' && 'visited'}
-                {activity.action === 'reviewed' && 'reviewed'}
-                {activity.action === 'created_collection' && 'created a collection'}
+                {activity.action === 'saved' && t('fr.savedPlace')}
+                {activity.action === 'visited' && t('fr.visitedPlace')}
+                {activity.action === 'reviewed' && t('fr.reviewedPlace')}
+                {activity.action === 'created_collection' && t('fr.createdCol')}
               </span>
             </p>
-            <span className="text-[10px] text-faint">{activity.time}</span>
+            <span className="text-[10px] text-faint">{pick(activity, 'time')}</span>
           </div>
 
           {activity.place && (
@@ -204,13 +209,13 @@ function ActivityItem({ activity, index }) {
                 className="w-14 h-14 rounded-xl object-cover"
               />
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-cream text-sm truncate">{activity.place.name}</p>
+                <p className="font-semibold text-cream text-sm truncate">{pick(activity.place, 'name')}</p>
                 <div className="flex items-center gap-2 mt-0.5">
                   <div className="flex items-center gap-0.5">
                     <Star size={11} className="fill-gold text-gold" />
                     <span className="text-xs text-cream/80">{activity.place.rating}</span>
                   </div>
-                  <span className="text-xs text-faint">{activity.place.cuisine || activity.place.category}</span>
+                  <span className="text-xs text-faint">{pick(activity.place, 'cuisine') || activity.place.category}</span>
                 </div>
               </div>
             </div>
@@ -218,12 +223,12 @@ function ActivityItem({ activity, index }) {
 
           {activity.collectionName && (
             <div className="mt-2 px-3 py-2 bg-violet/10 border border-violet/20 rounded-2xl">
-              <p className="text-sm font-medium text-violet">{activity.collectionName}</p>
+              <p className="text-sm font-medium text-violet">{pick(activity, 'collectionName')}</p>
             </div>
           )}
 
           {activity.note && (
-            <p className="text-sm text-muted mt-2.5 leading-relaxed">{activity.note}</p>
+            <p className="text-sm text-muted mt-2.5 leading-relaxed">{pick(activity, 'note')}</p>
           )}
 
           {activity.photo && (
@@ -251,29 +256,30 @@ function ActivityItem({ activity, index }) {
 
 function ActivityActions() {
   const showToast = useToast()
+  const { t } = useLang()
   const [liked, setLiked] = useState(false)
   return (
     <div className="flex items-center gap-4 mt-3 pt-3 hairline-t">
       <motion.button
         whileTap={{ scale: 0.9 }}
-        onClick={() => { setLiked(v => !v); showToast({ message: liked ? 'Like removed' : 'Liked ✦' }) }}
+        onClick={() => { setLiked(v => !v); showToast({ message: liked ? t('toast.likeRemoved') : t('toast.likeAdded') }) }}
         className={`flex items-center gap-1 text-xs font-medium transition-colors ${liked ? 'text-gold' : 'text-faint hover:text-gold'}`}
       >
-        <Heart size={14} className={liked ? 'fill-gold' : ''} /> {liked ? 'Liked' : 'Like'}
+        <Heart size={14} className={liked ? 'fill-gold' : ''} /> {liked ? t('fr.liked') : t('fr.like')}
       </motion.button>
       <motion.button
         whileTap={{ scale: 0.9 }}
-        onClick={() => showToast({ message: 'Comments — coming soon', type: 'info' })}
+        onClick={() => showToast({ message: t('toast.comingSoon', { what: t('toast.commentsSoon') }), type: 'info' })}
         className="flex items-center gap-1 text-xs text-faint hover:text-skyblue transition-colors"
       >
-        <MessageCircle size={14} /> Comment
+        <MessageCircle size={14} /> {t('fr.comment')}
       </motion.button>
       <motion.button
         whileTap={{ scale: 0.9 }}
-        onClick={() => showToast({ message: 'Link copied', type: 'info' })}
+        onClick={() => showToast({ message: t('toast.linkCopied'), type: 'info' })}
         className="flex items-center gap-1 text-xs text-faint hover:text-mint transition-colors"
       >
-        <Share2 size={14} /> Share
+        <Share2 size={14} /> {t('fr.share')}
       </motion.button>
     </div>
   )
@@ -281,6 +287,7 @@ function ActivityActions() {
 
 export default function FriendsPage() {
   const showToast = useToast()
+  const { t } = useLang()
   const [tab, setTab] = useState('feed')
   const [searchQuery, setSearchQuery] = useState('')
   const [addFriendOpen, setAddFriendOpen] = useState(false)
@@ -297,28 +304,28 @@ export default function FriendsPage() {
       {/* header */}
       <div className="px-5 pt-12 pb-3 sticky top-0 z-20 bg-ink/85 backdrop-blur-xl">
         <div className="flex items-center justify-between mb-4">
-          <h1 className="font-display text-2xl text-cream">Friends</h1>
+          <h1 className="font-display text-2xl text-cream">{t('fr.title')}</h1>
           <motion.button
             whileTap={{ scale: 0.9 }}
             onClick={() => setAddFriendOpen(true)}
             className="flex items-center gap-1.5 px-4 py-2 btn-gold rounded-xl text-sm font-semibold"
           >
             <UserPlus size={15} />
-            Add Friend
+            {t('fr.add')}
           </motion.button>
         </div>
 
         {/* tabs */}
         <div className="flex gap-1 p-1 bg-ink-3/70 rounded-2xl hairline">
-          {['feed', 'friends'].map(t => (
+          {['feed', 'friends'].map(tab2 => (
             <button
-              key={t}
-              onClick={() => setTab(t)}
+              key={tab2}
+              onClick={() => setTab(tab2)}
               className={`flex-1 relative py-2 rounded-xl text-sm font-medium transition-colors ${
-                tab === t ? 'text-gold-soft' : 'text-faint'
+                tab === tab2 ? 'text-gold-soft' : 'text-faint'
               }`}
             >
-              {tab === t && (
+              {tab === tab2 && (
                 <motion.div
                   layoutId="friends-tab"
                   className="absolute inset-0 bg-gold/10 rounded-xl"
@@ -326,7 +333,7 @@ export default function FriendsPage() {
                   transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                 />
               )}
-              <span className="relative z-10 capitalize">{t === 'feed' ? 'Activity Feed' : 'My Friends'}</span>
+              <span className="relative z-10 capitalize">{tab2 === 'feed' ? t('fr.feed') : t('fr.myFriends')}</span>
             </button>
           ))}
         </div>
@@ -346,7 +353,8 @@ export default function FriendsPage() {
               <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-faint" />
               <input
                 type="text"
-                placeholder="Search friends..."
+                placeholder={t('fr.search')}
+                aria-label={t('fr.search')}
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
                 className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-ink-3/70 hairline text-cream text-sm placeholder:text-faint outline-none focus:border-gold/30 transition-colors"
@@ -355,7 +363,7 @@ export default function FriendsPage() {
 
             {/* suggested */}
             <div className="mb-6">
-              <h3 className="font-display text-cream text-lg mb-3">Suggested for you</h3>
+              <h3 className="font-display text-cream text-lg mb-3">{t('fr.suggested')}</h3>
               <div className="flex gap-3 overflow-x-auto no-scrollbar">
                 {suggestedUsers.map(user => (
                   <motion.div
@@ -372,10 +380,10 @@ export default function FriendsPage() {
                     <p className="text-xs font-semibold text-cream truncate">{user.name}</p>
                     <motion.button
                       whileTap={{ scale: 0.9 }}
-                      onClick={() => showToast({ message: `Friend request sent to ${user.name} ✦` })}
+                      onClick={() => showToast({ message: t('toast.requestSent', { name: user.name }) })}
                       className="mt-2 px-3 py-1.5 bg-gold/10 border border-gold/20 text-gold-soft rounded-lg text-xs font-semibold w-full"
                     >
-                      Follow
+                      {t('fr.follow')}
                     </motion.button>
                   </motion.div>
                 ))}
@@ -383,7 +391,7 @@ export default function FriendsPage() {
             </div>
 
             {/* friends list */}
-            <h3 className="font-display text-cream text-lg mb-3">Your friends ({filteredFriends.length})</h3>
+            <h3 className="font-display text-cream text-lg mb-3">{t('fr.yourFriends', { n: filteredFriends.length })}</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {filteredFriends.map(friend => (
                 <FriendCard key={friend.id} friend={friend} />

@@ -4,9 +4,11 @@ import { Plus, Users, Lock, ChevronRight, Heart, ArrowLeft } from 'lucide-react'
 import PlaceCard from '../components/PlaceCard'
 import PlaceDetail from '../components/PlaceDetail'
 import { collections, places } from '../data/mockData'
+import { useLang } from '../lib/i18n'
 
 /** 3D deck — preview photos stacked like polaroids that fan out on hover */
 function CollectionCard({ collection, onClick, index }) {
+  const { t, pick } = useLang()
   const idSet = useMemo(() => new Set(collection.placeIds), [collection.placeIds])
   const collectionPlaces = useMemo(() => places.filter(p => idSet.has(p.id)), [idSet])
   const previewImages = collectionPlaces.slice(0, 3).map(p => p.image)
@@ -59,19 +61,19 @@ function CollectionCard({ collection, onClick, index }) {
             >
               {collection.emoji}
             </span>
-            <h3 className="font-display text-lg text-cream truncate">{collection.name}</h3>
+            <h3 className="font-display text-lg text-cream truncate">{pick(collection, 'name')}</h3>
           </div>
           <ChevronRight size={16} className="text-faint group-hover:text-gold transition-colors shrink-0" />
         </div>
         <div className="flex items-center gap-3 mt-1.5 ml-10">
-          <span className="text-xs text-faint">{collection.placeIds.length} places</span>
+          <span className="text-xs text-faint">{t('col.places', { n: collection.placeIds.length })}</span>
           {collection.isShared ? (
             <span className="flex items-center gap-1 text-xs" style={{ color: collection.color }}>
-              <Users size={11} /> Shared
+              <Users size={11} /> {t('col.shared')}
             </span>
           ) : (
             <span className="flex items-center gap-1 text-xs text-faint">
-              <Lock size={11} /> Private
+              <Lock size={11} /> {t('col.private')}
             </span>
           )}
         </div>
@@ -81,6 +83,7 @@ function CollectionCard({ collection, onClick, index }) {
 }
 
 export default function CollectionsPage({ isSaved, toggleSave, isVisited, toggleVisited }) {
+  const { t, pick } = useLang()
   const [activeCollection, setActiveCollection] = useState(null)
   const [selectedPlace, setSelectedPlace] = useState(null)
 
@@ -112,13 +115,13 @@ export default function CollectionsPage({ isSaved, toggleSave, isVisited, toggle
                 className="flex items-center gap-2 text-gold-soft font-medium text-sm mb-2"
               >
                 <ArrowLeft size={15} />
-                Collections
+                {t('col.back')}
               </button>
               <div className="flex items-center gap-3">
                 <span className="text-3xl">{activeCollection.emoji}</span>
                 <div>
-                  <h1 className="font-display text-2xl text-cream">{activeCollection.name}</h1>
-                  <p className="text-faint text-sm">{collectionPlaces.length} places</p>
+                  <h1 className="font-display text-2xl text-cream">{pick(activeCollection, 'name')}</h1>
+                  <p className="text-faint text-sm">{t('col.places', { n: collectionPlaces.length })}</p>
                 </div>
               </div>
             </motion.div>
@@ -130,16 +133,16 @@ export default function CollectionsPage({ isSaved, toggleSave, isVisited, toggle
               exit={{ opacity: 0, x: 20 }}
             >
               <div className="flex items-center justify-between">
-                <h1 className="font-display text-2xl text-cream">Collections</h1>
+                <h1 className="font-display text-2xl text-cream">{t('col.title')}</h1>
                 <motion.button
                   whileTap={{ scale: 0.9 }}
                   className="flex items-center gap-1.5 px-4 py-2 btn-gold rounded-xl text-sm font-semibold"
                 >
                   <Plus size={15} />
-                  New
+                  {t('col.new')}
                 </motion.button>
               </div>
-              <p className="text-faint text-sm mt-1">Spots you love, curated with friends</p>
+              <p className="text-faint text-sm mt-1">{t('col.subtitle')}</p>
             </motion.div>
           )}
         </AnimatePresence>
@@ -180,7 +183,7 @@ export default function CollectionsPage({ isSaved, toggleSave, isVisited, toggle
               className="relative overflow-hidden rounded-3xl p-5 mb-7 cursor-pointer btn-gold"
               onClick={() => setActiveCollection({
                 id: 'all',
-                name: 'All Saved Places',
+                name: t('col.allSaved'),
                 emoji: '✦',
                 placeIds: savedPlaceIds,
                 isShared: false,
@@ -193,9 +196,9 @@ export default function CollectionsPage({ isSaved, toggleSave, isVisited, toggle
                     <Heart size={22} className="text-[#1A1405] fill-[#1A1405]" />
                   </div>
                   <div>
-                    <h3 className="font-display text-[#1A1405] text-xl">All saved places</h3>
+                    <h3 className="font-display text-[#1A1405] text-xl">{t('col.allSaved')}</h3>
                     <p className="text-[#1A1405]/70 text-sm font-medium">
-                      {savedPlaceIds.length} pins in your atlas
+                      {t('col.pinsInAtlas', { n: savedPlaceIds.length })}
                     </p>
                   </div>
                 </div>
@@ -223,8 +226,8 @@ export default function CollectionsPage({ isSaved, toggleSave, isVisited, toggle
               <div className="w-12 h-12 rounded-full bg-gold/10 flex items-center justify-center mb-3">
                 <Plus size={22} className="text-gold" />
               </div>
-              <p className="font-display text-cream text-lg">New collection</p>
-              <p className="text-faint text-sm mt-1">Group spots you love with friends</p>
+              <p className="font-display text-cream text-lg">{t('col.newCollection')}</p>
+              <p className="text-faint text-sm mt-1">{t('col.groupSpots')}</p>
             </motion.div>
           </motion.div>
         )}

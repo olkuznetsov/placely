@@ -9,6 +9,7 @@ import CollectionsPage from './pages/CollectionsPage'
 import FriendsPage from './pages/FriendsPage'
 import ProfilePage from './pages/ProfilePage'
 import { useSavedPlaces } from './hooks/useSavedPlaces'
+import { LanguageProvider } from './lib/i18n'
 
 /** Depth-aware page transition: pages settle in from slightly behind the glass */
 function PageShell({ children }) {
@@ -35,6 +36,7 @@ export default function App() {
 
   return (
     <MotionConfig reducedMotion="user">
+      <LanguageProvider>
       <ToastProvider>
         <div className="max-w-lg mx-auto relative bg-ink text-cream min-h-screen ring-1 ring-white/5 shadow-[0_0_90px_rgba(0,0,0,0.85)]">
           <AnimatePresence mode="wait">
@@ -49,6 +51,7 @@ export default function App() {
           <BottomNav />
         </div>
       </ToastProvider>
+      </LanguageProvider>
     </MotionConfig>
   )
 }

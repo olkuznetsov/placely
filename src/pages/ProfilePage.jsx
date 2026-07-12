@@ -5,6 +5,7 @@ import { userProfile, places, collections, categoryMeta } from '../data/mockData
 import { categoryIcons } from '../lib/icons'
 import { useToast } from '../components/Toast'
 import SettingsSheet from '../components/SettingsSheet'
+import { useLang } from '../lib/i18n'
 
 // small deterministic star field for the header
 const STARS = Array.from({ length: 24 }, (_, i) => {
@@ -47,24 +48,26 @@ function StatCard({ icon: Icon, value, label, color }) {
 /** passport-stamp badge — dashed ring, slight tilt, gold ink */
 function StampBadge({ badge, index }) {
   const showToast = useToast()
+  const { pick } = useLang()
   const tilts = [-4, 3, -2, 5]
   return (
     <motion.div
       whileHover={{ scale: 1.06, rotate: 0 }}
       whileTap={{ scale: 0.95 }}
       initial={{ rotate: tilts[index % 4] }}
-      onClick={() => showToast({ message: `${badge.name}: ${badge.description}`, type: 'info' })}
+      onClick={() => showToast({ message: `${pick(badge, 'name')}: ${pick(badge, 'description')}`, type: 'info' })}
       className="flex flex-col items-center gap-1.5 p-3 rounded-2xl cursor-pointer border border-dashed border-gold/30 bg-gold/[0.04]"
     >
       <span className="text-2xl" style={{ filter: 'sepia(0.4) saturate(1.2)' }}>{badge.emoji}</span>
-      <p className="text-[11px] font-semibold text-gold-soft text-center leading-tight">{badge.name}</p>
-      <p className="text-[9px] text-faint text-center leading-tight">{badge.description}</p>
+      <p className="text-[11px] font-semibold text-gold-soft text-center leading-tight">{pick(badge, 'name')}</p>
+      <p className="text-[9px] text-faint text-center leading-tight">{pick(badge, 'description')}</p>
     </motion.div>
   )
 }
 
 export default function ProfilePage({ isSaved, visitedIds }) {
   const showToast = useToast()
+  const { t, pick } = useLang()
   const [settingsOpen, setSettingsOpen] = useState(false)
   const savedCount = useMemo(() => places.filter(p => isSaved(p.id)).length, [isSaved])
   const visitedCount = visitedIds.size
@@ -91,7 +94,7 @@ export default function ProfilePage({ isSaved, visitedIds }) {
 
         <div className="relative z-10 px-5 pt-12 pb-8">
           <div className="flex items-center justify-between mb-6">
-            <span className="font-display italic text-lg text-gold-gradient">Traveler&rsquo;s passport</span>
+            <span className="font-display italic text-lg text-gold-gradient">{t('pr.passport')}</span>
             <motion.button
               whileTap={{ scale: 0.9 }}
               onClick={() => setSettingsOpen(true)}
@@ -126,7 +129,7 @@ export default function ProfilePage({ isSaved, visitedIds }) {
               />
               <motion.button
                 whileTap={{ scale: 0.85 }}
-                onClick={() => showToast({ message: 'Edit profile — coming soon', type: 'info' })}
+                onClick={() => showToast({ message: t('toast.comingSoon', { what: t('toast.editSoon') }), type: 'info' })}
                 className="absolute bottom-0.5 right-0.5 w-7 h-7 rounded-full btn-gold flex items-center justify-center"
               >
                 <Edit3 size={11} />
@@ -136,18 +139,18 @@ export default function ProfilePage({ isSaved, visitedIds }) {
             <div className="flex-1 min-w-0">
               <h1 className="font-display text-2xl text-cream leading-tight">{userProfile.name}</h1>
               <p className="text-faint text-sm">{userProfile.username}</p>
-              <p className="text-muted text-sm mt-1.5 leading-snug">{userProfile.bio}</p>
+              <p className="text-muted text-sm mt-1.5 leading-snug">{pick(userProfile, 'bio')}</p>
             </div>
           </div>
 
           <div className="mt-5 flex items-center gap-2.5">
             <div className="inline-flex items-center gap-2 glass-chip rounded-2xl px-3.5 py-2">
               <Flame size={15} className="text-gold" />
-              <span className="text-gold-soft font-semibold text-xs">{userProfile.streak}-day streak</span>
+              <span className="text-gold-soft font-semibold text-xs">{t('pr.streak', { n: userProfile.streak })}</span>
             </div>
             <div className="inline-flex items-center gap-2 glass-chip rounded-2xl px-3.5 py-2">
               <span className="text-cream/90 font-semibold text-xs">
-                {visitedCount} of {savedCount} dreams lived
+                {t('pr.dreams', { x: visitedCount, y: savedCount })}
               </span>
               <span className="text-gold text-xs font-bold">{Math.round(pct * 100)}%</span>
             </div>
@@ -158,22 +161,22 @@ export default function ProfilePage({ isSaved, visitedIds }) {
       {/* stats */}
       <div className="px-5 mt-4">
         <div className="grid grid-cols-4 gap-2">
-          <StatCard icon={MapPin}      value={savedCount}          label="Pinned"  color="gold" />
-          <StatCard icon={Eye}         value={visitedCount}        label="Lived"   color="mint" />
-          <StatCard icon={FolderHeart} value={collections.length}  label="Lists"   color="sky" />
-          <StatCard icon={Users}       value={userProfile.friendCount} label="Friends" color="violet" />
+          <StatCard icon={MapPin}      value={savedCount}          label={t('pr.pinned')}  color="gold" />
+          <StatCard icon={Eye}         value={visitedCount}        label={t('pr.lived')}   color="mint" />
+          <StatCard icon={FolderHeart} value={collections.length}  label={t('pr.lists')}   color="sky" />
+          <StatCard icon={Users}       value={userProfile.friendCount} label={t('pr.friends')} color="violet" />
         </div>
       </div>
 
       {/* stamps */}
       <div className="mt-7 px-5">
         <div className="flex items-baseline justify-between mb-3">
-          <h2 className="font-display text-cream text-xl">Passport stamps</h2>
+          <h2 className="font-display text-cream text-xl">{t('pr.stamps')}</h2>
           <button
-            onClick={() => showToast({ message: 'All stamps — coming soon', type: 'info' })}
+            onClick={() => showToast({ message: t('toast.comingSoon', { what: t('toast.allStamps') }), type: 'info' })}
             className="text-gold-soft text-xs font-semibold flex items-center gap-0.5 tracking-wide"
           >
-            ALL <ChevronRight size={13} />
+            {t('pr.all')} <ChevronRight size={13} />
           </button>
         </div>
         <div className="grid grid-cols-4 gap-2">
@@ -185,7 +188,7 @@ export default function ProfilePage({ isSaved, visitedIds }) {
 
       {/* top categories */}
       <div className="mt-7 px-5">
-        <h2 className="font-display text-cream text-xl mb-3">Drawn to</h2>
+        <h2 className="font-display text-cream text-xl mb-3">{t('pr.drawnTo')}</h2>
         <div className="flex gap-2 flex-wrap">
           {userProfile.topCategories.map(cat => {
             const meta = categoryMeta[cat]
@@ -201,7 +204,7 @@ export default function ProfilePage({ isSaved, visitedIds }) {
                 }}
               >
                 {Icon && <Icon size={15} />}
-                <span>{meta?.label ?? cat}</span>
+                <span>{meta ? pick(meta, 'label') : cat}</span>
               </div>
             )
           })}
@@ -218,13 +221,13 @@ export default function ProfilePage({ isSaved, visitedIds }) {
           <div className="w-10 h-10 rounded-xl bg-ink-3 flex items-center justify-center">
             <Settings size={17} className="text-muted" />
           </div>
-          <span className="flex-1 text-left font-semibold text-cream text-sm">Settings & Preferences</span>
+          <span className="flex-1 text-left font-semibold text-cream text-sm">{t('pr.settings')}</span>
           <ChevronRight size={16} className="text-faint" />
         </motion.button>
       </div>
 
       <p className="text-center text-faint text-xs mt-7 mb-4 font-display italic">
-        Charting places since {userProfile.joinDate}
+        {t('pr.since', { date: pick(userProfile, 'joinDate') })}
       </p>
 
       <SettingsSheet isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} />

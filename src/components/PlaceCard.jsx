@@ -4,12 +4,15 @@ import TiltCard from './TiltCard'
 import { categoryMeta, friends } from '../data/mockData'
 import { categoryIcons } from '../lib/icons'
 import { useToast } from './Toast'
+import { useLang } from '../lib/i18n'
 
 export default function PlaceCard({ place, index = 0, isSaved, onToggleSave, onSelect }) {
   const showToast = useToast()
+  const { t, pick, price } = useLang()
   const meta = categoryMeta[place.category]
   const CatIcon = meta ? categoryIcons[meta.icon] : MapPin
   const savers = friends.filter(f => place.savedBy?.includes(f.id)).slice(0, 3)
+  const name = pick(place, 'name')
 
   return (
     <motion.div
@@ -24,7 +27,7 @@ export default function PlaceCard({ place, index = 0, isSaved, onToggleSave, onS
         <div className="absolute inset-0 rounded-3xl overflow-hidden hairline shadow-depth bg-ink-2">
           <img
             src={place.image}
-            alt={place.name}
+            alt={name}
             loading="lazy"
             draggable={false}
             className="absolute -inset-4 object-cover"
@@ -41,25 +44,27 @@ export default function PlaceCard({ place, index = 0, isSaved, onToggleSave, onS
         >
           {CatIcon && <CatIcon size={12} style={{ color: meta?.color }} />}
           <span className="text-[11px] font-semibold tracking-wide text-cream/90">
-            {meta?.label ?? place.category}
+            {meta ? pick(meta, 'label') : place.category}
           </span>
         </div>
 
-        {/* save button — highest layer */}
+        {/* save button — highest layer, 44px touch target */}
         <motion.button
           whileTap={{ scale: 0.8 }}
+          aria-label={isSaved ? t('toast.unpinned') : t('toast.pinned', { name })}
+          aria-pressed={isSaved}
           onClick={(e) => {
             e.stopPropagation()
             onToggleSave?.(place.id)
-            showToast({ message: isSaved ? 'Removed from your atlas' : `Pinned "${place.name}" ✦` })
+            showToast({ message: isSaved ? t('toast.unpinned') : t('toast.pinned', { name }) })
           }}
-          className={`absolute top-3 right-3 z-10 w-9 h-9 rounded-full glass-chip flex items-center justify-center transition-shadow ${
+          className={`absolute top-2.5 right-2.5 z-10 w-11 h-11 rounded-full glass-chip flex items-center justify-center transition-shadow ${
             isSaved ? 'glow-gold' : ''
           }`}
           style={{ z: 34 }}
         >
           <motion.div animate={isSaved ? { scale: [1, 1.35, 1] } : {}} transition={{ duration: 0.3 }}>
-            <Heart size={17} className={isSaved ? 'fill-gold text-gold' : 'text-cream/85'} />
+            <Heart size={18} className={isSaved ? 'fill-gold text-gold' : 'text-cream/85'} />
           </motion.div>
         </motion.button>
 
@@ -71,10 +76,10 @@ export default function PlaceCard({ place, index = 0, isSaved, onToggleSave, onS
           <div className="flex items-end justify-between gap-3">
             <div className="min-w-0">
               <h3 className="font-display text-xl leading-snug text-cream line-clamp-1">
-                {place.name}
+                {name}
               </h3>
               <p className="text-muted text-xs mt-0.5 line-clamp-1">
-                {[place.cuisine, place.priceRange].filter(Boolean).join(' · ')}
+                {[pick(place, 'cuisine'), price(place.priceRange)].filter(Boolean).join(' · ')}
               </p>
             </div>
             <div className="flex items-center gap-1 px-2 py-1 rounded-full glass-chip shrink-0">
@@ -86,7 +91,7 @@ export default function PlaceCard({ place, index = 0, isSaved, onToggleSave, onS
           <div className="flex items-center justify-between mt-2.5">
             <div className="flex items-center gap-1 text-faint text-[11px] min-w-0">
               <MapPin size={11} className="shrink-0" />
-              <span className="truncate">{place.address}</span>
+              <span className="truncate">{pick(place, 'address')}</span>
             </div>
             {savers.length > 0 && (
               <div className="flex items-center shrink-0 ml-2">
