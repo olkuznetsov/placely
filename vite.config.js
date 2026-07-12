@@ -11,8 +11,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.png', 'apple-touch-icon.png', 'icon.svg'],
       manifest: {
-        name: 'Placely',
-        short_name: 'Placely',
+        name: 'Wishplace',
+        short_name: 'Wishplace',
         description: 'Your places wishlist — save, share & discover spots with friends',
         theme_color: '#090B14',
         background_color: '#090B14',

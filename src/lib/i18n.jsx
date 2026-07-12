@@ -1,14 +1,14 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 
 /**
- * Minimal i18n for Placely — EN + UK.
+ * Minimal i18n for Wishplace — EN + UK.
  *
  * Ukraine's language law requires consumer-facing apps to offer a Ukrainian
  * UI, loaded by default for Ukrainian users — so `uk` is auto-detected from
  * the browser locale and persisted.
  */
 
-const LANG_KEY = 'placely.lang.v1'
+const LANG_KEY = 'wishplace.lang.v1'
 
 const dict = {
   en: {

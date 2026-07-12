@@ -170,7 +170,7 @@ function HeroScene() {
       >
         {/* top bar */}
         <div className="absolute top-0 left-0 right-0 flex items-center justify-between px-5 pt-12">
-          <span className="font-display italic text-2xl text-gold-gradient">Placely</span>
+          <span className="font-display italic text-2xl text-gold-gradient">Wishplace</span>
           <motion.button
             whileTap={{ scale: 0.9 }}
             aria-label="Notifications"

@@ -1,12 +1,12 @@
-# Placely ✦
+# Wishplace ✦
 
-**Live: [placely-7mz.pages.dev](https://placely-7mz.pages.dev)**
+**Live: [wishplace.pages.dev](https://wishplace.pages.dev)**
 
 **Your places wishlist — save spots you love, share them with friends, and turn "we should go there sometime" into "we went".**
 
 **Твій список бажаних місць — зберігай улюблені місця, ділись із друзями, і перетворюй «колись сходимо» на «ми там були».**
 
-Placely is a small social network built around one idea: everyone keeps a mental list of places they want to try — cafés, viewpoints, speakeasies, bakeries — and those lists are better together. Pin a place, group pins into shared collections, watch what friends are saving, and mark places as *lived* when you finally go.
+Wishplace is a small social network built around one idea: everyone keeps a mental list of places they want to try — cafés, viewpoints, speakeasies, bakeries — and those lists are better together. Pin a place, group pins into shared collections, watch what friends are saving, and mark places as *lived* when you finally go.
 
 > 📱 Mobile-first PWA. Open it on your phone, add to home screen, and it feels native.
 > 🇺🇦 Fully bilingual (Ukrainian / English). Ukrainian loads by default for `uk` locales — as Ukraine's language law requires for consumer apps. Prices show ₴-style ranges, hours use 24-hour time, and the demo dataset lives in Kyiv.

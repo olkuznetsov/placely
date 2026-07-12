@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from 'react'
 
-const SAVED_KEY = 'placely.saved.v1'
-const VISITED_KEY = 'placely.visited.v1'
-const SOON_KEY = 'placely.soon.v1'
+const SAVED_KEY = 'wishplace.saved.v1'
+const VISITED_KEY = 'wishplace.visited.v1'
+const SOON_KEY = 'wishplace.soon.v1'
 
 function loadSet(key, fallback) {
   try {
