@@ -13,31 +13,39 @@ export default function PlaceCard({ place, index = 0, isSaved, onToggleSave, onS
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 24 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: Math.min(index * 0.06, 0.4), duration: 0.45, ease: 'easeOut' }}
+      initial={{ opacity: 0, y: 44, rotateX: -14 }}
+      whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
+      viewport={{ once: true, margin: '-60px 0px' }}
+      transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+      style={{ transformPerspective: 900 }}
     >
       <TiltCard className="h-72" onClick={() => onSelect?.(place)}>
-        {/* full-bleed photo */}
-        <img
-          src={place.image}
-          alt={place.name}
-          loading="lazy"
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-        {/* cinematic scrim */}
-        <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/45 to-transparent" />
-        <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-ink/55 to-transparent" />
+        {/* clipped photo layer — the photo counter-drifts against the tilt */}
+        <div className="absolute inset-0 rounded-3xl overflow-hidden hairline shadow-depth bg-ink-2">
+          <img
+            src={place.image}
+            alt={place.name}
+            loading="lazy"
+            draggable={false}
+            className="absolute -inset-4 object-cover"
+            style={{ transform: 'translate3d(calc(var(--mx, 0) * -10px), calc(var(--my, 0) * -10px), 0)' }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/45 to-transparent" />
+          <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-ink/55 to-transparent" />
+        </div>
 
-        {/* category chip */}
-        <div className="absolute top-3.5 left-3.5 z-10 flex items-center gap-1.5 px-2.5 py-1.5 rounded-full glass-chip">
+        {/* category chip — floats above the photo */}
+        <div
+          className="absolute top-3.5 left-3.5 z-10 flex items-center gap-1.5 px-2.5 py-1.5 rounded-full glass-chip"
+          style={{ transform: 'translateZ(26px)' }}
+        >
           {CatIcon && <CatIcon size={12} style={{ color: meta?.color }} />}
           <span className="text-[11px] font-semibold tracking-wide text-cream/90">
             {meta?.label ?? place.category}
           </span>
         </div>
 
-        {/* save button */}
+        {/* save button — highest layer */}
         <motion.button
           whileTap={{ scale: 0.8 }}
           onClick={(e) => {
@@ -48,14 +56,18 @@ export default function PlaceCard({ place, index = 0, isSaved, onToggleSave, onS
           className={`absolute top-3 right-3 z-10 w-9 h-9 rounded-full glass-chip flex items-center justify-center transition-shadow ${
             isSaved ? 'glow-gold' : ''
           }`}
+          style={{ z: 34 }}
         >
           <motion.div animate={isSaved ? { scale: [1, 1.35, 1] } : {}} transition={{ duration: 0.3 }}>
             <Heart size={17} className={isSaved ? 'fill-gold text-gold' : 'text-cream/85'} />
           </motion.div>
         </motion.button>
 
-        {/* bottom content */}
-        <div className="absolute inset-x-0 bottom-0 z-10 p-4">
+        {/* bottom content — pops toward the viewer */}
+        <div
+          className="absolute inset-x-0 bottom-0 z-10 p-4"
+          style={{ transform: 'translateZ(30px)' }}
+        >
           <div className="flex items-end justify-between gap-3">
             <div className="min-w-0">
               <h3 className="font-display text-xl leading-snug text-cream line-clamp-1">

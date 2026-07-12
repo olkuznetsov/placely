@@ -1,9 +1,10 @@
 import { useState, useMemo } from 'react'
-import { motion, useScroll, useTransform } from 'framer-motion'
+import { motion, useScroll, useTransform, useMotionValue, useSpring } from 'framer-motion'
 import { Search, Bell, MapPin, Flame, ChevronRight } from 'lucide-react'
 import PlaceCard from '../components/PlaceCard'
 import CategoryFilter from '../components/CategoryFilter'
 import PlaceDetail from '../components/PlaceDetail'
+import WishDeck from '../components/WishDeck'
 import { places, activityFeed, userProfile, categories, friends } from '../data/mockData'
 
 // deterministic star field — same sky every night
@@ -39,10 +40,28 @@ function HeroScene() {
   const contentOpacity = useTransform(scrollY, [0, 260], [1, 0])
   const contentY = useTransform(scrollY, [0, 300], [0, -36])
 
+  // pointer parallax — the scene pans against the cursor, near layers most
+  const hx = useMotionValue(0)
+  const shx = useSpring(hx, { stiffness: 60, damping: 18 })
+  const skyX = useTransform(shx, v => v * -4)
+  const auroraX = useTransform(shx, v => v * -9)
+  const backRidgeX = useTransform(shx, v => v * -14)
+  const pinsX = useTransform(shx, v => v * -20)
+  const frontRidgeX = useTransform(shx, v => v * -28)
+
+  function handlePointer(e) {
+    const r = e.currentTarget.getBoundingClientRect()
+    hx.set(((e.clientX - r.left) / r.width - 0.5) * 2)
+  }
+
   return (
-    <div className="relative h-[440px] overflow-hidden bg-ink-sky">
-      {/* sky: stars + moon */}
-      <motion.div style={{ y: skyY }} className="absolute inset-0">
+    <div
+      className="relative h-[440px] overflow-hidden bg-ink-sky"
+      onMouseMove={handlePointer}
+      onMouseLeave={() => hx.set(0)}
+    >
+      {/* sky: stars */}
+      <motion.div style={{ y: skyY, x: skyX }} className="absolute inset-0">
         <div className="absolute inset-0 bg-gradient-to-b from-[#0A0E22] via-[#0D1124] to-ink" />
         {STARS.map((s, i) => (
           <div
@@ -58,7 +77,7 @@ function HeroScene() {
       </motion.div>
 
       {/* aurora */}
-      <motion.div style={{ y: auroraY }} className="absolute inset-0 pointer-events-none">
+      <motion.div style={{ y: auroraY, x: auroraX }} className="absolute inset-0 pointer-events-none">
         <div className="animate-drift absolute -left-16 top-24 w-72 h-44 rounded-full opacity-25"
           style={{ background: 'radial-gradient(ellipse at center, #5EEAD4 0%, transparent 70%)', filter: 'blur(46px)' }}
         />
@@ -68,7 +87,7 @@ function HeroScene() {
       </motion.div>
 
       {/* back ridge */}
-      <motion.div style={{ y: backRidgeY }} className="absolute inset-x-0 bottom-6">
+      <motion.div style={{ y: backRidgeY, x: backRidgeX }} className="absolute -inset-x-8 bottom-6">
         {/* golden-hour glow sinking behind the peaks */}
         <div
           className="absolute -top-28 left-1/2 -translate-x-1/2 w-[480px] h-64 pointer-events-none"
@@ -83,7 +102,7 @@ function HeroScene() {
       </motion.div>
 
       {/* wishlist pins between the ridges */}
-      <motion.div style={{ y: pinsY }} className="absolute inset-0 pointer-events-none">
+      <motion.div style={{ y: pinsY, x: pinsX }} className="absolute inset-0 pointer-events-none">
         {PINS.map((pin, i) => (
           <div
             key={i}
@@ -99,7 +118,7 @@ function HeroScene() {
       </motion.div>
 
       {/* front ridge */}
-      <motion.div style={{ y: frontRidgeY }} className="absolute inset-x-0 -bottom-px">
+      <motion.div style={{ y: frontRidgeY, x: frontRidgeX }} className="absolute -inset-x-8 -bottom-px">
         <svg viewBox="0 0 375 110" preserveAspectRatio="none" className="w-full h-28 block">
           <path
             d="M0,110 L0,74 L52,38 L104,68 L160,22 L214,62 L268,40 L322,72 L375,52 L375,110 Z"
@@ -218,6 +237,12 @@ export default function HomePage({ isSaved, toggleSave, isVisited, toggleVisited
     [category, searchQuery]
   )
 
+  // saved but not yet lived — the deck you're triaging
+  const wishlist = useMemo(() =>
+    places.filter(p => savedIds.has(p.id) && !visitedIds.has(p.id)),
+    [savedIds, visitedIds]
+  )
+
   return (
     <div className="min-h-screen pb-32">
       <HeroScene />
@@ -243,6 +268,19 @@ export default function HomePage({ isSaved, toggleSave, isVisited, toggleVisited
       <div className="mt-2">
         <JourneyStrip savedCount={savedIds.size} visitedCount={visitedIds.size} />
       </div>
+
+      {/* wishlist deck — swipeable 3D stack */}
+      {wishlist.length > 0 && (
+        <div className="mt-8">
+          <div className="flex items-baseline justify-between px-5 mb-3">
+            <h2 className="font-display text-cream text-xl">
+              Up <em className="text-gold-gradient">next</em>
+            </h2>
+            <span className="text-xs text-faint">{wishlist.length} on your wishlist</span>
+          </div>
+          <WishDeck places={wishlist} onOpen={setSelectedPlace} />
+        </div>
+      )}
 
       {/* friend activity */}
       <div className="mt-8">
