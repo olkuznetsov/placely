@@ -1,5 +1,7 @@
 # Placely ✦
 
+**Live: [placely-7mz.pages.dev](https://placely-7mz.pages.dev)**
+
 **Your places wishlist — save spots you love, share them with friends, and turn "we should go there sometime" into "we went".**
 
 **Твій список бажаних місць — зберігай улюблені місця, ділись із друзями, і перетворюй «колись сходимо» на «ми там були».**
