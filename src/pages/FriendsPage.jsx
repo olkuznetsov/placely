@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, UserPlus, MapPin, Star, Heart, MessageCircle, Share2, X, Check } from 'lucide-react'
 import { friends, activityFeed } from '../data/mockData'
@@ -16,6 +16,13 @@ function AddFriendSheet({ isOpen, onClose }) {
   const { t } = useLang()
   const [query, setQuery] = useState('')
   const [sent, setSent] = useState(new Set())
+
+  useEffect(() => {
+    if (!isOpen) return undefined
+    const onKey = (e) => { if (e.key === 'Escape') onClose() }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [isOpen, onClose])
 
   const results = query.length > 1
     ? suggestedUsers.filter(u =>

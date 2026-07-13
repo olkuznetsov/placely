@@ -4,6 +4,8 @@ import TiltCard from './TiltCard'
 import { categoryMeta, friends } from '../data/mockData'
 import { categoryIcons } from '../lib/icons'
 import { useToast } from './Toast'
+import FadeImg from '../lib/FadeImg'
+import { buzz } from '../lib/haptics'
 import { useLang } from '../lib/i18n'
 
 export default function PlaceCard({ place, index = 0, isSaved, onToggleSave, onSelect }) {
@@ -25,10 +27,11 @@ export default function PlaceCard({ place, index = 0, isSaved, onToggleSave, onS
       <TiltCard className="h-72" onClick={() => onSelect?.(place)}>
         {/* clipped photo layer — the photo counter-drifts against the tilt */}
         <div className="absolute inset-0 rounded-3xl overflow-hidden hairline shadow-depth bg-ink-2">
-          <img
+          <FadeImg
             src={place.image}
             alt={name}
             loading="lazy"
+            decoding="async"
             draggable={false}
             className="absolute -inset-4 object-cover"
             style={{ transform: 'translate3d(calc(var(--mx, 0) * -10px), calc(var(--my, 0) * -10px), 0)' }}
@@ -55,6 +58,7 @@ export default function PlaceCard({ place, index = 0, isSaved, onToggleSave, onS
           aria-pressed={isSaved}
           onClick={(e) => {
             e.stopPropagation()
+            buzz()
             onToggleSave?.(place.id)
             showToast({ message: isSaved ? t('toast.unpinned') : t('toast.pinned', { name }) })
           }}

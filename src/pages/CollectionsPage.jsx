@@ -5,6 +5,8 @@ import PlaceCard from '../components/PlaceCard'
 import PlaceDetail from '../components/PlaceDetail'
 import { collections, places } from '../data/mockData'
 import { useLang } from '../lib/i18n'
+import FadeImg from '../lib/FadeImg'
+import { useToast } from '../components/Toast'
 
 /** 3D deck — preview photos stacked like polaroids that fan out on hover */
 function CollectionCard({ collection, onClick, index }) {
@@ -40,7 +42,7 @@ function CollectionCard({ collection, onClick, index }) {
             className="absolute inset-x-6 top-2 bottom-2 rounded-2xl overflow-hidden hairline shadow-pop"
             style={{ zIndex: i === 1 ? 3 : i, transformOrigin: 'bottom center' }}
           >
-            <img src={src} alt="" className="w-full h-full object-cover" />
+            <FadeImg src={src} alt="" decoding="async" className="w-full h-full object-cover" />
             <div className="absolute inset-0 bg-gradient-to-t from-ink/70 via-transparent to-transparent" />
             {i === 1 && collection.placeIds.length > 3 && (
               <span className="absolute bottom-2 right-2.5 text-[11px] font-bold text-cream/90 glass-chip px-2 py-0.5 rounded-full">
@@ -84,6 +86,7 @@ function CollectionCard({ collection, onClick, index }) {
 
 export default function CollectionsPage({ isSaved, toggleSave, isVisited, toggleVisited }) {
   const { t, pick } = useLang()
+  const showToast = useToast()
   const [activeCollection, setActiveCollection] = useState(null)
   const [selectedPlace, setSelectedPlace] = useState(null)
 
@@ -136,6 +139,7 @@ export default function CollectionsPage({ isSaved, toggleSave, isVisited, toggle
                 <h1 className="font-display text-2xl text-cream">{t('col.title')}</h1>
                 <motion.button
                   whileTap={{ scale: 0.9 }}
+                  onClick={() => showToast({ message: t('toast.comingSoon', { what: t('col.newCollection') }), type: 'info' })}
                   className="flex items-center gap-1.5 px-4 py-2 btn-gold rounded-xl text-sm font-semibold"
                 >
                   <Plus size={15} />
@@ -221,6 +225,7 @@ export default function CollectionsPage({ isSaved, toggleSave, isVisited, toggle
             {/* create new */}
             <motion.div
               whileHover={{ scale: 1.01 }}
+              onClick={() => showToast({ message: t('toast.comingSoon', { what: t('col.newCollection') }), type: 'info' })}
               className="mt-7 border-2 border-dashed border-white/10 rounded-3xl p-8 flex flex-col items-center justify-center cursor-pointer hover:border-gold/30 transition-colors"
             >
               <div className="w-12 h-12 rounded-full bg-gold/10 flex items-center justify-center mb-3">

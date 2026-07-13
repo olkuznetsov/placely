@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Bell, Sunset, Shield, HelpCircle, LogOut, ChevronRight, Smartphone, Globe } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useToast } from './Toast'
 import { useLang } from '../lib/i18n'
 
@@ -8,6 +8,13 @@ export default function SettingsSheet({ isOpen, onClose }) {
   const showToast = useToast()
   const { t, lang, setLang } = useLang()
   const [notifications, setNotifications] = useState(true)
+
+  useEffect(() => {
+    if (!isOpen) return undefined
+    const onKey = (e) => { if (e.key === 'Escape') onClose() }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [isOpen, onClose])
 
   function handle(labelKey) {
     if (labelKey === 'set.signOut') {

@@ -19,6 +19,13 @@ export default function AddToCollectionModal({ place, isOpen, onClose }) {
     setNewName('')
   }, [place?.id])
 
+  useEffect(() => {
+    if (!isOpen) return undefined
+    const onKey = (e) => { if (e.key === 'Escape') onClose() }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [isOpen, onClose])
+
   function handleAdd(collection) {
     setAdded(prev => new Set([...prev, collection.id]))
     showToast({ message: t('toast.addedTo', { name: pick(collection, 'name') }) })

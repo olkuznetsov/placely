@@ -6,7 +6,7 @@ import { useLang } from '../lib/i18n'
 export default function CategoryFilter({ active, onChange }) {
   const { pick } = useLang()
   return (
-    <div className="flex gap-2 overflow-x-auto no-scrollbar px-5 py-3" role="tablist">
+    <div className="flex gap-2 overflow-x-auto no-scrollbar edge-fade-x px-5 py-3" role="tablist">
       {categories.map((cat) => {
         const Icon = categoryIcons[cat.icon]
         const isActive = active === cat.id

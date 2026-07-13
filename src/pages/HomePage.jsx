@@ -1,13 +1,15 @@
 import { useState, useMemo, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, useScroll, useTransform, useMotionValue, useSpring } from 'framer-motion'
-import { Search, Bell, MapPin, Flame, ChevronRight } from 'lucide-react'
+import { Search, Bell, MapPin, Flame, ChevronRight, X } from 'lucide-react'
 import PlaceCard from '../components/PlaceCard'
 import CategoryFilter from '../components/CategoryFilter'
 import PlaceDetail from '../components/PlaceDetail'
 import WishDeck from '../components/WishDeck'
 import { places, activityFeed, userProfile, categoryMeta, friends } from '../data/mockData'
 import { useLang } from '../lib/i18n'
+import FadeImg from '../lib/FadeImg'
+import { useToast } from '../components/Toast'
 
 // deterministic star field — same sky every night
 const STARS = Array.from({ length: 46 }, (_, i) => {
@@ -26,14 +28,15 @@ const STARS = Array.from({ length: 46 }, (_, i) => {
 
 // glowing wishlist pins floating over the ridges
 const PINS = [
-  { left: '15%', bottom: 84, color: '#5EEAD4', size: 16, delay: 0 },
-  { left: '56%', bottom: 122, color: '#EFB35C', size: 20, delay: 1.4 },
-  { left: '83%', bottom: 70, color: '#FB7185', size: 14, delay: 0.7 },
+  { left: '12%', bottom: 96, color: '#5EEAD4', size: 16, delay: 0 },
+  { left: '70%', bottom: 150, color: '#EFB35C', size: 20, delay: 1.4 },
+  { left: '88%', bottom: 78, color: '#FB7185', size: 14, delay: 0.7 },
 ]
 
 function HeroScene() {
   const { t } = useLang()
   const navigate = useNavigate()
+  const showToast = useToast()
   const { scrollY } = useScroll()
   // farther layers drift down more = appear slower than the scroll
   const skyY = useTransform(scrollY, [0, 420], [0, 150])
@@ -184,7 +187,8 @@ function HeroScene() {
           <span className="font-display italic text-2xl text-gold-gradient">Wishplace</span>
           <motion.button
             whileTap={{ scale: 0.9 }}
-            aria-label="Notifications"
+            aria-label={t('toast.notifSoon')}
+            onClick={() => showToast({ message: t('toast.comingSoon', { what: t('toast.notifSoon') }), type: 'info' })}
             className="relative w-9 h-9 rounded-full glass-chip flex items-center justify-center"
           >
             <Bell size={17} className="text-cream/90" />
@@ -268,7 +272,7 @@ function JourneyStrip({ savedCount, visitedCount }) {
 
       <div className="flex items-center gap-1.5 px-3 py-2 rounded-2xl bg-gold/10 border border-gold/20 shrink-0">
         <Flame size={15} className="text-gold" />
-        <span className="text-gold-soft text-xs font-bold">{userProfile.streak}d</span>
+        <span className="text-gold-soft text-xs font-bold">{t('home.streakShort', { n: userProfile.streak })}</span>
       </div>
     </div>
   )
@@ -317,8 +321,17 @@ export default function HomePage({ isSaved, toggleSave, isVisited, toggleVisited
             aria-label={t('home.search')}
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            className="w-full pl-11 pr-4 py-3.5 rounded-2xl glass-panel shadow-pop text-cream text-sm placeholder:text-faint outline-none focus:border-gold/30 transition-colors"
+            className="w-full pl-11 pr-11 py-3.5 rounded-2xl glass-panel shadow-pop text-cream text-sm placeholder:text-faint outline-none focus:border-gold/30 transition-colors"
           />
+          {searchQuery && (
+            <button
+              aria-label={t('search.clear')}
+              onClick={() => setSearchQuery('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-ink-3 hairline flex items-center justify-center text-faint hover:text-cream transition-colors"
+            >
+              <X size={13} />
+            </button>
+          )}
         </div>
       </div>
 
@@ -342,6 +355,15 @@ export default function HomePage({ isSaved, toggleSave, isVisited, toggleVisited
                 <span className="text-xs text-faint">{t('home.onWishlist', { n: wishlist.length })}</span>
               </div>
               <WishDeck places={wishlist} onOpen={setSelectedPlace} markSoon={markSoon} isSoon={isSoon} />
+            </div>
+          )}
+
+          {/* the whole wishlist is lived — a small golden moment */}
+          {wishlist.length === 0 && savedIds.size > 0 && (
+            <div className="mt-8 mx-5 glass-panel rounded-3xl p-6 text-center shadow-depth">
+              <p className="text-gold text-2xl mb-1">✦</p>
+              <p className="font-display text-cream text-xl">{t('home.allLived')}</p>
+              <p className="text-faint text-sm mt-1">{t('home.allLivedSub')}</p>
             </div>
           )}
 
@@ -391,7 +413,7 @@ export default function HomePage({ isSaved, toggleSave, isVisited, toggleVisited
                     <p className="text-xs text-muted mt-2.5 line-clamp-2 leading-relaxed">{pick(activity, 'note')}</p>
                   )}
                   {activity.photo && (
-                    <img src={activity.photo} alt="" className="w-full h-24 object-cover rounded-2xl mt-2.5" />
+                    <FadeImg src={activity.photo} alt="" decoding="async" className="w-full h-24 object-cover rounded-2xl mt-2.5" />
                   )}
                   {activity.rating && (
                     <div className="flex gap-0.5 mt-2">

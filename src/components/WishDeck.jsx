@@ -5,6 +5,8 @@ import { categoryMeta } from '../data/mockData'
 import { categoryIcons } from '../lib/icons'
 import { useLang } from '../lib/i18n'
 import { useToast } from './Toast'
+import FadeImg from '../lib/FadeImg'
+import { buzz } from '../lib/haptics'
 
 const FLING_OFFSET = 110   // px of drag that commits a swipe
 const FLING_VELOCITY = 650 // px/s flick that commits a swipe
@@ -57,6 +59,7 @@ export default function WishDeck({ places, onOpen, markSoon, isSoon }) {
 
   function fling(dir, place) {
     setBusy(true)
+    buzz()
     if (dir > 0) {
       markSoon?.(place.id)
       showToast({ message: t('toast.soon') })
@@ -155,10 +158,11 @@ export default function WishDeck({ places, onOpen, markSoon, isSoon }) {
               onPointerDown={isTop ? (e) => handleDown(e, place) : undefined}
             >
               <div className="relative h-full rounded-3xl overflow-hidden hairline shadow-pop bg-ink-2">
-                <img
+                <FadeImg
                   src={place.image}
                   alt={name}
                   draggable={false}
+                  decoding="async"
                   className="absolute inset-0 w-full h-full object-cover pointer-events-none"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/35 to-transparent" />

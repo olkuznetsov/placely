@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { X, Heart, MapPin, Clock, Star, Share2, Navigation, ChevronLeft, ChevronRight, Bookmark, CheckCircle2 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useToast } from './Toast'
+import { buzz } from '../lib/haptics'
 import AddToCollectionModal from './AddToCollectionModal'
 import { categoryMeta } from '../data/mockData'
 import { useLang } from '../lib/i18n'
@@ -17,16 +18,25 @@ export default function PlaceDetail({ place, isOpen, onClose, isSaved, onToggleS
     setPhotoIndex(0)
   }, [place?.id])
 
+  useEffect(() => {
+    if (!isOpen) return undefined
+    const onKey = (e) => { if (e.key === 'Escape') onClose() }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [isOpen, onClose])
+
   if (!place) return null
   const meta = categoryMeta[place.category]
   const name = pick(place, 'name')
 
   function handleSave() {
+    buzz()
     onToggleSave?.(place.id)
     showToast({ message: isSaved ? t('toast.unpinned') : t('toast.pinned', { name }) })
   }
 
   function handleVisited() {
+    buzz()
     onToggleVisited?.(place.id)
     showToast({ message: isVisited ? t('toast.unlived') : t('toast.lived') })
   }

@@ -1,13 +1,14 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { MapContainer, TileLayer, Marker } from 'react-leaflet'
+import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet'
 import L from 'leaflet'
-import { Search, List, Map as MapIcon, Navigation, MapPin } from 'lucide-react'
+import { Search, List, Map as MapIcon, Navigation, MapPin, X } from 'lucide-react'
 import PlaceCard from '../components/PlaceCard'
 import CategoryFilter from '../components/CategoryFilter'
 import PlaceDetail from '../components/PlaceDetail'
 import { places, categoryMeta } from '../data/mockData'
 import { useLang } from '../lib/i18n'
+import { useToast } from '../components/Toast'
 
 function createMarkerIcon(category) {
   const color = categoryMeta[category]?.color ?? '#EFB35C'
@@ -26,12 +27,46 @@ function createMarkerIcon(category) {
 // Kyiv — Maidan Nezalezhnosti
 const KYIV_CENTER = [50.4501, 30.5234]
 
+// imperative bridge: fly the map when a target arrives
+function FlyTo({ target }) {
+  const map = useMap()
+  useEffect(() => {
+    if (target) map.flyTo(target, 14, { duration: 1.2 })
+  }, [target, map])
+  return null
+}
+
+const userIcon = L.divIcon({
+  className: 'custom-marker',
+  html: `<div style="position:relative;width:16px;height:16px">
+    <div class="marker-pulse" style="background:#EFB35C40"></div>
+    <div style="position:absolute;inset:0;border-radius:50%;background:#EFB35C;border:2.5px solid rgba(255,255,255,0.95);box-shadow:0 0 16px 4px #EFB35C99"></div>
+  </div>`,
+  iconSize: [16, 16],
+  iconAnchor: [8, 8],
+})
+
 export default function ExplorePage({ isSaved, toggleSave, isVisited, toggleVisited }) {
   const { t } = useLang()
+  const showToast = useToast()
   const [view, setView] = useState('map')
   const [category, setCategory] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedPlace, setSelectedPlace] = useState(null)
+  const [userPos, setUserPos] = useState(null)
+
+  function locateMe() {
+    if (!navigator.geolocation) {
+      showToast({ message: t('explore.locDenied'), type: 'info' })
+      return
+    }
+    showToast({ message: t('explore.locating'), type: 'info' })
+    navigator.geolocation.getCurrentPosition(
+      (pos) => setUserPos([pos.coords.latitude, pos.coords.longitude]),
+      () => showToast({ message: t('explore.locDenied'), type: 'info' }),
+      { enableHighAccuracy: true, timeout: 8000 }
+    )
+  }
 
   const filtered = useMemo(() =>
     places.filter(p => {
@@ -82,8 +117,17 @@ export default function ExplorePage({ isSaved, toggleSave, isVisited, toggleVisi
               aria-label={t('explore.search')}
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              className="w-full pl-11 pr-4 py-2.5 rounded-2xl bg-ink-3/70 hairline text-cream text-sm placeholder:text-faint outline-none focus:border-gold/30 transition-colors"
+              className="w-full pl-11 pr-10 py-2.5 rounded-2xl bg-ink-3/70 hairline text-cream text-sm placeholder:text-faint outline-none focus:border-gold/30 transition-colors"
             />
+            {searchQuery && (
+              <button
+                aria-label={t('search.clear')}
+                onClick={() => setSearchQuery('')}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-ink hairline flex items-center justify-center text-faint hover:text-cream transition-colors"
+              >
+                <X size={12} />
+              </button>
+            )}
           </div>
         </div>
         <CategoryFilter active={category} onChange={setCategory} />
@@ -122,6 +166,8 @@ export default function ExplorePage({ isSaved, toggleSave, isVisited, toggleVisi
                     }}
                   />
                 ))}
+                {userPos && <Marker position={userPos} icon={userIcon} />}
+                <FlyTo target={userPos} />
               </MapContainer>
 
               {/* overlay info */}
@@ -133,6 +179,7 @@ export default function ExplorePage({ isSaved, toggleSave, isVisited, toggleVisi
                   </div>
                   <motion.button
                     whileTap={{ scale: 0.9 }}
+                    onClick={locateMe}
                     className="flex items-center gap-1.5 px-4 py-2 btn-gold rounded-xl text-sm font-semibold"
                   >
                     <Navigation size={14} />

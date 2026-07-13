@@ -46,6 +46,8 @@ A dark, cinematic canvas that makes place photography glow, set at golden hour:
 npm install
 npm run dev      # http://localhost:5174 (exposed on LAN for phone testing)
 npm run build    # production build to dist/
+npm run deploy   # build + publish to wishplace.pages.dev (needs wrangler auth)
+node scripts/make-icons.mjs  # regenerate brand assets (icons, og image)
 ```
 
 ## Project structure
