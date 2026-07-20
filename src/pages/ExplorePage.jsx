@@ -6,7 +6,8 @@ import { Search, List, Map as MapIcon, Navigation, MapPin, X } from 'lucide-reac
 import PlaceCard from '../components/PlaceCard'
 import CategoryFilter from '../components/CategoryFilter'
 import PlaceDetail from '../components/PlaceDetail'
-import { places, categoryMeta } from '../data/mockData'
+import { categoryMeta } from '../data/mockData'
+import { usePlaces } from '../context/PlacesContext'
 import { useLang } from '../lib/i18n'
 import { useToast } from '../components/Toast'
 
@@ -48,6 +49,7 @@ const userIcon = L.divIcon({
 
 export default function ExplorePage({ isSaved, toggleSave, isVisited, toggleVisited }) {
   const { t } = useLang()
+  const { allPlaces } = usePlaces()
   const showToast = useToast()
   const [view, setView] = useState('map')
   const [category, setCategory] = useState('all')
@@ -69,7 +71,7 @@ export default function ExplorePage({ isSaved, toggleSave, isVisited, toggleVisi
   }
 
   const filtered = useMemo(() =>
-    places.filter(p => {
+    allPlaces.filter(p => {
       const q = searchQuery.toLowerCase()
       const matchCategory = category === 'all' || p.category === category
       const matchSearch = !q ||
@@ -78,7 +80,7 @@ export default function ExplorePage({ isSaved, toggleSave, isVisited, toggleVisi
         p.tags.some(tg => tg.toLowerCase().includes(q))
       return matchCategory && matchSearch
     }),
-    [category, searchQuery]
+    [allPlaces, category, searchQuery]
   )
 
   return (

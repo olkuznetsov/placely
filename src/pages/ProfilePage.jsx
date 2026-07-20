@@ -1,7 +1,8 @@
 import { useState, useMemo } from 'react'
 import { motion } from 'framer-motion'
 import { Settings, MapPin, Eye, FolderHeart, Users, Flame, ChevronRight, Edit3 } from 'lucide-react'
-import { userProfile, places, collections, categoryMeta } from '../data/mockData'
+import { userProfile, collections, categoryMeta } from '../data/mockData'
+import { usePlaces } from '../context/PlacesContext'
 import { categoryIcons } from '../lib/icons'
 import { useToast } from '../components/Toast'
 import SettingsSheet from '../components/SettingsSheet'
@@ -68,8 +69,9 @@ function StampBadge({ badge, index }) {
 export default function ProfilePage({ isSaved, visitedIds }) {
   const showToast = useToast()
   const { t, pick } = useLang()
+  const { allPlaces } = usePlaces()
   const [settingsOpen, setSettingsOpen] = useState(false)
-  const savedCount = useMemo(() => places.filter(p => isSaved(p.id)).length, [isSaved])
+  const savedCount = useMemo(() => allPlaces.filter(p => isSaved(p.id)).length, [allPlaces, isSaved])
   const visitedCount = visitedIds.size
 
   const pct = savedCount > 0 ? Math.min(visitedCount / savedCount, 1) : 0

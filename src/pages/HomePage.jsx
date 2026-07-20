@@ -6,7 +6,8 @@ import PlaceCard from '../components/PlaceCard'
 import CategoryFilter from '../components/CategoryFilter'
 import PlaceDetail from '../components/PlaceDetail'
 import WishDeck from '../components/WishDeck'
-import { places, activityFeed, userProfile, categoryMeta, friends } from '../data/mockData'
+import { activityFeed, userProfile, categoryMeta, friends } from '../data/mockData'
+import { usePlaces } from '../context/PlacesContext'
 import { useLang } from '../lib/i18n'
 import FadeImg from '../lib/FadeImg'
 import { useToast } from '../components/Toast'
@@ -280,13 +281,14 @@ function JourneyStrip({ savedCount, visitedCount }) {
 
 export default function HomePage({ isSaved, toggleSave, isVisited, toggleVisited, savedIds, visitedIds, markSoon, isSoon }) {
   const { t, pick } = useLang()
+  const { allPlaces } = usePlaces()
   const navigate = useNavigate()
   const [category, setCategory] = useState('all')
   const [selectedPlace, setSelectedPlace] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
 
   const filtered = useMemo(() =>
-    places.filter(p => {
+    allPlaces.filter(p => {
       const q = searchQuery.toLowerCase()
       const matchCategory = category === 'all' || p.category === category
       const matchSearch = !q ||
@@ -295,13 +297,13 @@ export default function HomePage({ isSaved, toggleSave, isVisited, toggleVisited
         p.tags.some(tg => tg.toLowerCase().includes(q))
       return matchCategory && matchSearch
     }),
-    [category, searchQuery]
+    [allPlaces, category, searchQuery]
   )
 
   // saved but not yet lived — the deck you're triaging
   const wishlist = useMemo(() =>
-    places.filter(p => savedIds.has(p.id) && !visitedIds.has(p.id)),
-    [savedIds, visitedIds]
+    allPlaces.filter(p => savedIds.has(p.id) && !visitedIds.has(p.id)),
+    [allPlaces, savedIds, visitedIds]
   )
 
   // when the user is actively filtering, get results in front of their eyes

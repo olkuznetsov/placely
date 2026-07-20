@@ -158,13 +158,22 @@ export default function WishDeck({ places, onOpen, markSoon, isSoon }) {
               onPointerDown={isTop ? (e) => handleDown(e, place) : undefined}
             >
               <div className="relative h-full rounded-3xl overflow-hidden hairline shadow-pop bg-ink-2">
-                <FadeImg
-                  src={place.image}
-                  alt={name}
-                  draggable={false}
-                  decoding="async"
-                  className="absolute inset-0 w-full h-full object-cover pointer-events-none"
-                />
+                {place.image ? (
+                  <FadeImg
+                    src={place.image}
+                    alt={name}
+                    draggable={false}
+                    decoding="async"
+                    className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+                  />
+                ) : (
+                  <div
+                    className="absolute inset-0 flex items-center justify-center pointer-events-none"
+                    style={{ background: `linear-gradient(160deg, ${meta?.color ?? '#EFB35C'}26 0%, #10141F 55%, #090B14 100%)` }}
+                  >
+                    {CatIcon && <CatIcon size={96} strokeWidth={1.1} style={{ color: `${meta?.color ?? '#EFB35C'}55` }} />}
+                  </div>
+                )}
                 <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/35 to-transparent" />
 
                 <div className="absolute top-4 left-4 flex items-center gap-1.5 px-2.5 py-1.5 rounded-full glass-chip">
@@ -208,10 +217,12 @@ export default function WishDeck({ places, onOpen, markSoon, isSoon }) {
                     {[pick(place, 'cuisine'), price(place.priceRange)].filter(Boolean).join(' · ')}
                   </p>
                   <div className="flex items-center justify-between mt-3">
-                    <div className="flex items-center gap-1 px-2 py-1 rounded-full glass-chip">
-                      <Star size={11} className="fill-gold text-gold" />
-                      <span className="text-xs font-semibold text-gold-soft">{place.rating}</span>
-                    </div>
+                    {place.rating != null && (
+                      <div className="flex items-center gap-1 px-2 py-1 rounded-full glass-chip">
+                        <Star size={11} className="fill-gold text-gold" />
+                        <span className="text-xs font-semibold text-gold-soft">{place.rating}</span>
+                      </div>
+                    )}
                     <div className="flex items-center gap-1 text-faint text-[11px] min-w-0 ml-3">
                       <MapPin size={11} className="shrink-0" />
                       <span className="truncate">{pick(place, 'address')}</span>

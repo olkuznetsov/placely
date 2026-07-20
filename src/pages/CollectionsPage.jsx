@@ -3,7 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Plus, Users, Lock, ChevronRight, Heart, ArrowLeft } from 'lucide-react'
 import PlaceCard from '../components/PlaceCard'
 import PlaceDetail from '../components/PlaceDetail'
-import { collections, places } from '../data/mockData'
+import { collections } from '../data/mockData'
+import { usePlaces } from '../context/PlacesContext'
 import { useLang } from '../lib/i18n'
 import FadeImg from '../lib/FadeImg'
 import { useToast } from '../components/Toast'
@@ -11,8 +12,9 @@ import { useToast } from '../components/Toast'
 /** 3D deck — preview photos stacked like polaroids that fan out on hover */
 function CollectionCard({ collection, onClick, index }) {
   const { t, pick } = useLang()
+  const { allPlaces } = usePlaces()
   const idSet = useMemo(() => new Set(collection.placeIds), [collection.placeIds])
-  const collectionPlaces = useMemo(() => places.filter(p => idSet.has(p.id)), [idSet])
+  const collectionPlaces = useMemo(() => allPlaces.filter(p => idSet.has(p.id)), [allPlaces, idSet])
   const previewImages = collectionPlaces.slice(0, 3).map(p => p.image)
 
   return (
@@ -86,6 +88,7 @@ function CollectionCard({ collection, onClick, index }) {
 
 export default function CollectionsPage({ isSaved, toggleSave, isVisited, toggleVisited }) {
   const { t, pick } = useLang()
+  const { allPlaces } = usePlaces()
   const showToast = useToast()
   const [activeCollection, setActiveCollection] = useState(null)
   const [selectedPlace, setSelectedPlace] = useState(null)
@@ -93,12 +96,12 @@ export default function CollectionsPage({ isSaved, toggleSave, isVisited, toggle
   const collectionPlaces = useMemo(() => {
     if (!activeCollection) return []
     const idSet = new Set(activeCollection.placeIds)
-    return places.filter(p => idSet.has(p.id))
-  }, [activeCollection])
+    return allPlaces.filter(p => idSet.has(p.id))
+  }, [activeCollection, allPlaces])
 
   const savedPlaceIds = useMemo(() =>
-    places.filter(p => isSaved(p.id)).map(p => p.id),
-    [isSaved]
+    allPlaces.filter(p => isSaved(p.id)).map(p => p.id),
+    [allPlaces, isSaved]
   )
 
   return (

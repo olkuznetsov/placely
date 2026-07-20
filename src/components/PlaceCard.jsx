@@ -27,15 +27,24 @@ export default function PlaceCard({ place, index = 0, isSaved, onToggleSave, onS
       <TiltCard className="h-72" onClick={() => onSelect?.(place)}>
         {/* clipped photo layer — the photo counter-drifts against the tilt */}
         <div className="absolute inset-0 rounded-3xl overflow-hidden hairline shadow-depth bg-ink-2">
-          <FadeImg
-            src={place.image}
-            alt={name}
-            loading="lazy"
-            decoding="async"
-            draggable={false}
-            className="absolute -inset-4 object-cover"
-            style={{ transform: 'translate3d(calc(var(--mx, 0) * -10px), calc(var(--my, 0) * -10px), 0)' }}
-          />
+          {place.image ? (
+            <FadeImg
+              src={place.image}
+              alt={name}
+              loading="lazy"
+              decoding="async"
+              draggable={false}
+              className="absolute -inset-4 object-cover"
+              style={{ transform: 'translate3d(calc(var(--mx, 0) * -10px), calc(var(--my, 0) * -10px), 0)' }}
+            />
+          ) : (
+            <div
+              className="absolute inset-0 flex items-center justify-center"
+              style={{ background: `linear-gradient(160deg, ${meta?.color ?? '#EFB35C'}26 0%, #10141F 55%, #090B14 100%)` }}
+            >
+              {CatIcon && <CatIcon size={72} strokeWidth={1.2} style={{ color: `${meta?.color ?? '#EFB35C'}55` }} />}
+            </div>
+          )}
           <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/45 to-transparent" />
           <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-ink/55 to-transparent" />
         </div>
@@ -86,10 +95,12 @@ export default function PlaceCard({ place, index = 0, isSaved, onToggleSave, onS
                 {[pick(place, 'cuisine'), price(place.priceRange)].filter(Boolean).join(' · ')}
               </p>
             </div>
-            <div className="flex items-center gap-1 px-2 py-1 rounded-full glass-chip shrink-0">
-              <Star size={11} className="fill-gold text-gold" />
-              <span className="text-xs font-semibold text-gold-soft">{place.rating}</span>
-            </div>
+            {place.rating != null && (
+              <div className="flex items-center gap-1 px-2 py-1 rounded-full glass-chip shrink-0">
+                <Star size={11} className="fill-gold text-gold" />
+                <span className="text-xs font-semibold text-gold-soft">{place.rating}</span>
+              </div>
+            )}
           </div>
 
           <div className="flex items-center justify-between mt-2.5">

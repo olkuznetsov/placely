@@ -1,5 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Heart, MapPin, Clock, Star, Share2, Navigation, ChevronLeft, ChevronRight, Bookmark, CheckCircle2 } from 'lucide-react'
+import { X, Heart, MapPin, Clock, Star, Share2, Navigation, ChevronLeft, ChevronRight, Bookmark, CheckCircle2, Trash2 } from 'lucide-react'
+import { categoryIcons } from '../lib/icons'
+import { usePlaces } from '../context/PlacesContext'
 import { useState, useEffect } from 'react'
 import { useToast } from './Toast'
 import { buzz } from '../lib/haptics'
@@ -9,6 +11,7 @@ import { useLang } from '../lib/i18n'
 
 export default function PlaceDetail({ place, isOpen, onClose, isSaved, onToggleSave, isVisited, onToggleVisited }) {
   const showToast = useToast()
+  const { removePlace } = usePlaces()
   const { t, pick, price } = useLang()
   const [photoIndex, setPhotoIndex] = useState(0)
   const [collectionOpen, setCollectionOpen] = useState(false)
@@ -80,18 +83,27 @@ export default function PlaceDetail({ place, isOpen, onClose, isSaved, onToggleS
             >
               {/* photo hero — full bleed */}
               <div className="relative h-72 overflow-hidden rounded-t-[28px]">
-                <AnimatePresence mode="wait">
-                  <motion.img
-                    key={photoIndex}
-                    src={place.photos?.[photoIndex] || place.image}
-                    alt={name}
-                    className="w-full h-full object-cover"
-                    initial={{ opacity: 0, scale: 1.04 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.35 }}
-                  />
-                </AnimatePresence>
+                {place.image ? (
+                  <AnimatePresence mode="wait">
+                    <motion.img
+                      key={photoIndex}
+                      src={place.photos?.[photoIndex] || place.image}
+                      alt={name}
+                      className="w-full h-full object-cover"
+                      initial={{ opacity: 0, scale: 1.04 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.35 }}
+                    />
+                  </AnimatePresence>
+                ) : (
+                  <div
+                    className="w-full h-full flex items-center justify-center"
+                    style={{ background: `linear-gradient(160deg, ${meta?.color ?? '#EFB35C'}26 0%, #10141F 55%, #090B14 100%)` }}
+                  >
+                    {(() => { const HeroIcon = meta ? categoryIcons[meta.icon] : MapPin; return HeroIcon ? <HeroIcon size={110} strokeWidth={1} style={{ color: `${meta?.color ?? '#EFB35C'}55` }} /> : null })()}
+                  </div>
+                )}
                 <div className="absolute inset-0 bg-gradient-to-t from-ink-2 via-ink-2/20 to-black/30" />
 
                 <div className="absolute top-0 inset-x-0 flex justify-center pt-3">
@@ -156,11 +168,15 @@ export default function PlaceDetail({ place, isOpen, onClose, isSaved, onToggleS
                 {/* rating row + actions */}
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-1.5">
-                      <Star size={15} className="fill-gold text-gold" />
-                      <span className="font-bold text-cream">{place.rating}</span>
-                      <span className="text-faint text-xs">({place.reviewCount})</span>
-                    </div>
+                    {place.rating != null ? (
+                      <div className="flex items-center gap-1.5">
+                        <Star size={15} className="fill-gold text-gold" />
+                        <span className="font-bold text-cream">{place.rating}</span>
+                        <span className="text-faint text-xs">({place.reviewCount})</span>
+                      </div>
+                    ) : (
+                      <span className="text-faint text-xs">{t('add.mine')}</span>
+                    )}
                     {place.priceRange && (
                       <span className="text-gold-soft font-semibold text-sm">{price(place.priceRange)}</span>
                     )}
@@ -212,19 +228,23 @@ export default function PlaceDetail({ place, isOpen, onClose, isSaved, onToggleS
                     </div>
                     <p className="text-cream/90 text-[13px] mt-2 leading-snug">{pick(place, 'address')}</p>
                   </div>
-                  <div className="bg-ink-3/70 hairline rounded-2xl p-3.5">
-                    <div className="flex items-center gap-2 text-gold">
-                      <Clock size={14} />
-                      <span className="text-[10px] font-semibold uppercase tracking-widest">{t('pd.hours')}</span>
+                  {place.hours && (
+                    <div className="bg-ink-3/70 hairline rounded-2xl p-3.5">
+                      <div className="flex items-center gap-2 text-gold">
+                        <Clock size={14} />
+                        <span className="text-[10px] font-semibold uppercase tracking-widest">{t('pd.hours')}</span>
+                      </div>
+                      <p className="text-cream/90 text-[13px] mt-2 leading-snug line-clamp-2">{pick(place, 'hours')}</p>
                     </div>
-                    <p className="text-cream/90 text-[13px] mt-2 leading-snug line-clamp-2">{pick(place, 'hours')}</p>
-                  </div>
+                  )}
                 </div>
 
-                <div className="mt-5">
-                  <h3 className="font-display italic text-gold-soft text-lg mb-1.5">{t('pd.story')}</h3>
-                  <p className="text-muted text-sm leading-relaxed">{pick(place, 'description')}</p>
-                </div>
+                {place.description && (
+                  <div className="mt-5">
+                    <h3 className="font-display italic text-gold-soft text-lg mb-1.5">{t('pd.story')}</h3>
+                    <p className="text-muted text-sm leading-relaxed">{pick(place, 'description')}</p>
+                  </div>
+                )}
 
                 <div className="flex flex-wrap gap-2 mt-4">
                   {place.tags.map(tag => (
@@ -251,6 +271,21 @@ export default function PlaceDetail({ place, isOpen, onClose, isSaved, onToggleS
                     <Navigation size={17} />
                     {t('pd.directions')}
                   </motion.button>
+                  {place.isMine && (
+                    <motion.button
+                      whileTap={{ scale: 0.95 }}
+                      aria-label={t('add.delete')}
+                      onClick={() => {
+                        if (isSaved) onToggleSave?.(place.id)
+                        removePlace(place.id)
+                        showToast({ message: t('add.deleted'), type: 'info' })
+                        onClose()
+                      }}
+                      className="flex items-center justify-center py-3.5 px-4 bg-rose/10 border border-rose/25 text-rose rounded-2xl"
+                    >
+                      <Trash2 size={17} />
+                    </motion.button>
+                  )}
                   <motion.button
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setCollectionOpen(true)}
